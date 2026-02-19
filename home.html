@@ -1,455 +1,717 @@
 <!doctype html>
 <html data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
-    <title>Payoo | Home</title>
-    <link rel="shortcut icon" href="./assets/logo.png" type="image/x-icon">
-    <style type="text/tailwindcss">
-      * { font-family: "Outfit", sans-serif; }
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous"/>
+  <!-- QR Code library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <title>Payoo | Home</title>
+  <link rel="shortcut icon" href="./assets/logo.png" type="image/x-icon">
+  <style type="text/tailwindcss">
+    * { font-family:"Outfit",sans-serif; }
+    .animate-fade-in { animation:fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
-      /* Fade-in for transaction cards */
-      .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
-      @keyframes fadeIn {
-        from { opacity:0; transform:translateY(8px); }
-        to   { opacity:1; transform:translateY(0); }
-      }
+    .confetti-piece {
+      position:fixed; top:-10px; border-radius:2px;
+      animation:confettiFall linear forwards; pointer-events:none; z-index:9999;
+    }
+    @keyframes confettiFall {
+      0%{transform:translateY(0) rotate(0deg);opacity:1}
+      100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+    }
 
-      /* Confetti particle */
-      .confetti-piece {
-        position: fixed;
-        width: 10px; height: 10px;
-        top: -10px;
-        border-radius: 2px;
-        animation: confettiFall linear forwards;
-        pointer-events: none;
-        z-index: 9999;
-      }
-      @keyframes confettiFall {
-        0%   { transform: translateY(0) rotate(0deg); opacity:1; }
-        100% { transform: translateY(110vh) rotate(720deg); opacity:0; }
-      }
+    /* Pull-to-refresh */
+    #ptr-indicator { position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:100;transition:opacity 0.3s;display:flex;flex-direction:column;align-items:center;gap:6px; }
+    #ptr-spinner { width:28px;height:28px;border-radius:50%;border:3px solid #e5e7eb;border-top-color:#3B25C1;animation:spin 0.7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-      /* Pull-to-refresh spinner */
-      #ptr-indicator {
-        position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
-        z-index: 100; transition: opacity 0.3s;
-      }
-      #ptr-spinner {
-        width: 36px; height: 36px; border-radius: 50%;
-        border: 3px solid #e5e7eb;
-        border-top-color: #3B25C1;
-        animation: spin 0.7s linear infinite;
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
+    /* Bottom nav */
+    .nav-item.active i, .nav-item.active p { color:#3B25C1 !important; }
+    .nav-item.active::before { content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:36px;height:3px;background:#3B25C1;border-radius:0 0 4px 4px; }
+    .nav-item { position:relative; }
+    main { padding-bottom:90px; }
 
-      /* Bottom nav active */
-      .nav-item.active i, .nav-item.active p { color: #3B25C1 !important; }
-      .nav-item.active { position: relative; }
-      .nav-item.active::before {
-        content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
-        width: 36px; height: 3px; background: #3B25C1; border-radius: 0 0 4px 4px;
-      }
+    /* Onboarding overlay */
+    #onboarding { position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end; }
+    #onboarding.hidden { display:none; }
+    .onboard-card { animation:slideUp 0.4s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
 
-      /* Section content bottom padding for nav */
-      main { padding-bottom: 80px; }
-    </style>
-  </head>
+    /* Scheduled ping dot */
+    .ping-dot { animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite; }
+    @keyframes ping { 75%,100%{transform:scale(2);opacity:0} }
 
-  <body class="min-h-screen max-w-md bg-base-200 mx-auto">
+    /* Profile avatar ring */
+    .avatar-ring { background:linear-gradient(135deg,#3B25C1,#7c3aed,#06b6d4); padding:2px; border-radius:50%; }
+  </style>
+</head>
 
-    <!-- Pull-to-refresh indicator -->
-    <div id="ptr-indicator" style="opacity:0; pointer-events:none;">
-      <div id="ptr-spinner"></div>
+<body class="min-h-screen max-w-md bg-base-200 mx-auto">
+
+<!-- ═══ ONBOARDING TUTORIAL ═══ -->
+<div id="onboarding">
+  <div class="onboard-card w-full bg-base-100 rounded-t-3xl p-6 pb-10">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex gap-1.5" id="onboard-dots"></div>
+      <button onclick="skipOnboarding()" class="text-xs text-gray-400 underline">Skip</button>
     </div>
+    <div id="onboard-content"></div>
+    <div class="flex gap-3 mt-8">
+      <button id="onboard-back" onclick="onboardStep(-1)" class="btn rounded-2xl flex-1 hidden">Back</button>
+      <button id="onboard-next" onclick="onboardStep(1)" class="btn bg-[#3B25C1] text-white border-none rounded-2xl flex-1">Next →</button>
+    </div>
+  </div>
+</div>
 
-    <!-- Header -->
-    <header class="border-b border-base-300 sticky top-0 bg-base-200 z-20">
-      <section class="w-11/12 mx-auto py-3 flex justify-between items-center">
-        <div class="flex gap-3 items-center">
-          <div>
-            <div class="text-xl font-black text-[#3B25C1] leading-none">Pay<span class="text-neutral">oo</span></div>
-            <div class="flex items-center gap-1 mt-0.5">
-              <p class="text-neutral/40 text-xs">Balance:</p>
-              <h2 class="font-bold text-base leading-none">৳<span id="balance">45,000</span></h2>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center gap-1">
-          <!-- Dark mode toggle -->
-          <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm rounded-xl" title="Toggle dark mode">
-            <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
-          </button>
-          <!-- Notification bell -->
-          <button onclick="setNav('history')" class="btn btn-ghost btn-sm rounded-xl relative">
-            <i class="fa-solid fa-bell text-lg"></i>
-            <span id="tx-badge" class="hidden absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"></span>
-          </button>
-          <!-- Logout -->
-          <button onclick="confirmLogout()" class="btn btn-ghost btn-sm rounded-xl" title="Logout">
-            <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
-          </button>
-        </div>
-      </section>
+<!-- Pull-to-refresh indicator -->
+<div id="ptr-indicator" style="opacity:0;pointer-events:none;"><div id="ptr-spinner"></div><p style="font-size:10px;color:#3B25C1;font-weight:600;font-family:Outfit,sans-serif;">Release to refresh</p></div>
 
-      <!-- Spending limit bar -->
-      <div id="limit-bar-wrap" class="hidden w-11/12 mx-auto pb-2">
-        <div class="flex justify-between text-xs text-gray-400 mb-1">
-          <span>Monthly Spend</span>
-          <span id="limit-bar-label"></span>
-        </div>
-        <div class="w-full bg-base-300 rounded-full h-1.5">
-          <div id="limit-bar" class="h-1.5 rounded-full transition-all duration-700 bg-[#3B25C1]" style="width:0%"></div>
+<!-- ═══ HEADER ═══ -->
+<header class="border-b border-base-300 sticky top-0 bg-base-200 z-20">
+  <section class="w-11/12 mx-auto py-2.5 flex justify-between items-center">
+    <button onclick="setNav('profile')" class="flex gap-2.5 items-center">
+      <div class="avatar-ring shrink-0">
+        <div id="header-avatar" class="w-9 h-9 rounded-full bg-[#3B25C1] flex items-center justify-center text-white font-bold text-sm overflow-hidden">U</div>
+      </div>
+      <div class="text-left">
+        <div class="text-base font-black text-[#3B25C1] leading-none">Pay<span class="text-neutral">oo</span></div>
+        <div class="flex items-center gap-1 mt-0.5">
+          <p class="text-neutral/40 text-xs">৳<span id="balance">45,000</span></p>
         </div>
       </div>
-    </header>
+    </button>
+    <div class="flex items-center gap-0.5">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm rounded-xl">
+        <i id="theme-icon" class="fa-solid fa-moon text-base"></i>
+      </button>
+      <button onclick="setNav('notifications')" class="btn btn-ghost btn-sm rounded-xl relative">
+        <i class="fa-solid fa-bell text-base"></i>
+        <span id="notif-badge" class="hidden absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold"></span>
+      </button>
+      <button onclick="confirmLogout()" class="btn btn-ghost btn-sm rounded-xl">
+        <i class="fa-solid fa-arrow-right-from-bracket text-base"></i>
+      </button>
+    </div>
+  </section>
+  <div id="limit-bar-wrap" class="hidden w-11/12 mx-auto pb-2">
+    <div class="flex justify-between text-xs text-gray-400 mb-1">
+      <span>Monthly Spend</span><span id="limit-bar-label"></span>
+    </div>
+    <div class="w-full bg-base-300 rounded-full h-1.5">
+      <div id="limit-bar" class="h-1.5 rounded-full transition-all duration-700 bg-[#3B25C1]" style="width:0%"></div>
+    </div>
+  </div>
+</header>
 
-    <main id="main-content">
+<main id="main-content">
 
-      <!-- ══ HOME ══ -->
-      <section id="sec-home" class="w-11/12 mx-auto pt-5">
-        <div class="space-y-1 mb-5">
-          <h1 class="text-2xl font-bold">Welcome to Pay<span class="text-primary">oo</span></h1>
-          <p class="text-neutral/40 text-sm">Easy and convenient financial services.</p>
-        </div>
-
-        <!-- Action Grid -->
-        <div class="grid grid-cols-3 gap-3 mb-3">
-          <button onclick="setNav('addMoney')" class="btn flex-col h-full py-4 btn-primary btn-soft rounded-2xl gap-1">
-            <img src="./assets/opt-1.png" class="w-9">
-            <p class="text-neutral/70 text-xs">Add Money</p>
-          </button>
-          <button onclick="setNav('cashout')" class="btn flex-col h-full py-4 btn-primary btn-soft rounded-2xl gap-1">
-            <img src="./assets/opt-2.png" class="w-9">
-            <p class="text-neutral/70 text-xs">Cashout</p>
-          </button>
-          <button onclick="setNav('send')" class="btn flex-col h-full py-4 btn-primary btn-soft rounded-2xl gap-1">
-            <img src="./assets/opt-3.png" class="w-9">
-            <p class="text-neutral/70 text-xs">Send Money</p>
-          </button>
-          <button onclick="setNav('bonus')" class="btn flex-col h-full py-4 btn-primary btn-soft rounded-2xl gap-1">
-            <img src="./assets/opt-4.png" class="w-9">
-            <p class="text-neutral/70 text-xs">Get Bonus</p>
-          </button>
-          <button onclick="setNav('paybill')" class="btn flex-col h-full py-4 btn-primary btn-soft rounded-2xl gap-1">
-            <img src="./assets/opt-5.png" class="w-9">
-            <p class="text-neutral/70 text-xs">Pay Bill</p>
-          </button>
-          <button onclick="setNav('contacts')" class="btn flex-col h-full py-4 btn-primary btn-soft rounded-2xl gap-1">
-            <i class="fa-solid fa-star text-2xl text-yellow-400"></i>
-            <p class="text-neutral/70 text-xs">Contacts</p>
-          </button>
-        </div>
-        <button onclick="setNav('dashboard')" class="btn btn-primary btn-soft rounded-2xl w-full gap-2 mb-3">
-          <i class="fa-solid fa-chart-line"></i> Spending Dashboard
-        </button>
-        <button onclick="setNav('settings')" class="btn btn-ghost rounded-2xl w-full gap-2 border border-base-300">
-          <i class="fa-solid fa-sliders"></i> Settings & Spending Limit
-        </button>
-      </section>
-
-      <!-- ── Add Money ── -->
-      <section id="sec-addMoney" class="hidden w-11/12 mx-auto py-5">
-        <h1 class="font-bold text-2xl mb-4">Add Money</h1>
-        <div class="card bg-base-100 rounded-2xl">
-          <div class="card-body gap-3">
-            <div>
-              <label class="label font-semibold text-sm">Select a Bank</label>
-              <select id="addmoney-bank" class="select rounded-2xl bg-base-200 w-full h-12">
-                <option disabled selected>Select Bank</option>
-                <option value="DBBL">DBBL</option>
-                <option value="IBBL">IBBL</option>
-                <option value="CITY">City Bank</option>
-              </select>
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">Bank Account Number</label>
-              <input id="addMoney-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit Account Number" />
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">Amount (BDT)</label>
-              <input id="addMoney-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount" />
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">4-Digit PIN</label>
-              <input id="addMoney-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN" />
-            </div>
-            <button id="addMoney-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
-              <i class="fa-solid fa-plus mr-2"></i>Add Money
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Cash Out ── -->
-      <section id="sec-cashout" class="hidden w-11/12 mx-auto py-5">
-        <h1 class="font-bold text-2xl mb-4">Cash Out</h1>
-        <div class="card bg-base-100 rounded-2xl">
-          <div class="card-body gap-3">
-            <div>
-              <label class="label font-semibold text-sm">Agent Number</label>
-              <input id="cashout-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit agent number" />
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">Amount (BDT)</label>
-              <input id="cashout-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount" />
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">4-Digit PIN</label>
-              <input id="cashout-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN" />
-            </div>
-            <button id="cashout-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
-              <i class="fa-solid fa-money-bill-wave mr-2"></i>Withdraw
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Send Money ── -->
-      <section id="sec-send" class="hidden w-11/12 mx-auto py-5">
-        <h1 class="font-bold text-2xl mb-4">Send Money</h1>
-        <!-- Saved contacts quick-pick -->
-        <div id="send-contacts-row" class="mb-4 hidden">
-          <p class="text-sm font-semibold text-neutral/60 mb-2">Quick Pick from Contacts</p>
-          <div id="send-contacts-list" class="flex gap-2 overflow-x-auto pb-1"></div>
-        </div>
-        <div class="card bg-base-100 rounded-2xl">
-          <div class="card-body gap-3">
-            <div>
-              <label class="label font-semibold text-sm">Recipient Number</label>
-              <input id="Transfer-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit number" />
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">Amount (BDT)</label>
-              <input id="Transfer-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount" />
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">4-Digit PIN</label>
-              <input id="Transfer-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN" />
-            </div>
-            <button id="Transfer-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
-              <i class="fa-solid fa-paper-plane mr-2"></i>Send Money
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Pay Bill ── -->
-      <section id="sec-paybill" class="hidden w-11/12 mx-auto py-5">
-        <h1 class="font-bold text-2xl mb-4">Pay Bill</h1>
-        <div class="card bg-base-100 rounded-2xl">
-          <div class="card-body gap-3">
-            <div>
-              <label class="label font-semibold text-sm">Select a Bank</label>
-              <select id="paybill-bank" class="select rounded-2xl bg-base-200 w-full h-12">
-                <option disabled selected>Select Bank</option>
-                <option value="DBBL">DBBL</option>
-                <option value="IBBL">IBBL</option>
-                <option value="CITY">City Bank</option>
-              </select>
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">Biller Account Number</label>
-              <input id="paybill-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit Account Number" />
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">Amount (BDT)</label>
-              <input id="paybill-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount" />
-            </div>
-            <div>
-              <label class="label font-semibold text-sm">4-Digit PIN</label>
-              <input id="paybill-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN" />
-            </div>
-            <button id="paybill-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
-              <i class="fa-solid fa-file-invoice-dollar mr-2"></i>Pay Bill
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Get Bonus ── -->
-      <section id="sec-bonus" class="hidden w-11/12 mx-auto py-5">
-        <h1 class="font-bold text-2xl mb-4">Get Bonus</h1>
-        <div class="card bg-base-100 rounded-2xl">
-          <div class="card-body gap-3">
-            <div>
-              <label class="label font-semibold text-sm">Bonus Coupon Code</label>
-              <input id="Bonus-input" type="text" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter coupon code" />
-              <p class="text-xs text-gray-400 mt-1">Try: <span class="font-mono bg-base-200 px-1 rounded">rashed</span>, <span class="font-mono bg-base-200 px-1 rounded">Fatema</span>, <span class="font-mono bg-base-200 px-1 rounded">Mercy</span></p>
-            </div>
-            <button id="Bonus-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
-              <i class="fa-solid fa-gift mr-2"></i>Redeem Coupon
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Saved Contacts ── -->
-      <section id="sec-contacts" class="hidden w-11/12 mx-auto py-5">
-        <div class="flex justify-between items-center mb-4">
-          <h1 class="font-bold text-2xl">Saved Contacts</h1>
-        </div>
-        <!-- Add contact form -->
-        <div class="card bg-base-100 rounded-2xl mb-4">
-          <div class="card-body gap-3">
-            <p class="font-semibold text-sm">Add New Contact</p>
-            <input id="contact-name" type="text" maxlength="30" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Contact name" />
-            <input id="contact-number" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="11-digit number" />
-            <button onclick="addContact()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 font-semibold">
-              <i class="fa-solid fa-user-plus mr-2"></i>Save Contact
-            </button>
-          </div>
-        </div>
-        <div id="contacts-list" class="space-y-3"></div>
-      </section>
-
-      <!-- ── Transactions ── -->
-      <section id="sec-history" class="hidden w-11/12 mx-auto py-5">
-        <div class="flex justify-between items-center mb-4">
-          <h1 class="font-bold text-2xl">Transactions</h1>
-          <div class="flex gap-2">
-            <button onclick="exportCSV()" class="btn btn-sm btn-ghost text-green-600 rounded-xl" title="Export CSV">
-              <i class="fa-solid fa-file-csv"></i>
-            </button>
-            <button onclick="clearTransactionHistory()" class="btn btn-sm btn-ghost text-red-400 rounded-xl">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        </div>
-        <!-- Filter Tabs -->
-        <div class="flex gap-2 mb-4">
-          <button id="filter-all"    onclick="setFilter('all')"    class="btn btn-sm rounded-xl bg-[#3B25C1] text-white flex-1 border-none">All</button>
-          <button id="filter-credit" onclick="setFilter('credit')" class="btn btn-sm rounded-xl bg-base-300 text-gray-500 flex-1 border-none">Credit</button>
-          <button id="filter-debit"  onclick="setFilter('debit')"  class="btn btn-sm rounded-xl bg-base-300 text-gray-500 flex-1 border-none">Debit</button>
-        </div>
-        <div id="Transaction-history" class="space-y-3 pb-4"></div>
-      </section>
-
-      <!-- ── Dashboard ── -->
-      <section id="sec-dashboard" class="hidden"></section>
-
-      <!-- ── Settings ── -->
-      <section id="sec-settings" class="hidden w-11/12 mx-auto py-5">
-        <h1 class="font-bold text-2xl mb-5">Settings</h1>
-
-        <!-- Spending Limit -->
-        <div class="card bg-base-100 rounded-2xl mb-4">
-          <div class="card-body gap-3">
-            <p class="font-bold">Monthly Spending Limit</p>
-            <p class="text-sm text-neutral/50">Get alerted when you're close to or exceed your limit.</p>
-            <div class="flex gap-2">
-              <input id="limit-input" type="number" min="0" class="input rounded-2xl bg-base-200 flex-1 h-11" placeholder="e.g. 10000" />
-              <button onclick="saveSpendingLimit()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 px-5 font-semibold">Save</button>
-            </div>
-            <div id="current-limit-display" class="text-sm text-neutral/50"></div>
-          </div>
-        </div>
-
-        <!-- Dark Mode -->
-        <div class="card bg-base-100 rounded-2xl mb-4">
-          <div class="card-body flex-row items-center justify-between">
-            <div>
-              <p class="font-bold">Dark Mode</p>
-              <p class="text-sm text-neutral/50">Toggle light / dark theme</p>
-            </div>
-            <input type="checkbox" id="dark-toggle-settings" class="toggle toggle-primary" onchange="toggleTheme()" />
-          </div>
-        </div>
-
-        <!-- Export -->
-        <div class="card bg-base-100 rounded-2xl">
-          <div class="card-body gap-3">
-            <p class="font-bold">Export Statement</p>
-            <p class="text-sm text-neutral/50">Download all your transactions as a CSV file.</p>
-            <button onclick="exportCSV()" class="btn bg-green-600 text-white border-none rounded-2xl h-11 font-semibold">
-              <i class="fa-solid fa-file-csv mr-2"></i>Download CSV
-            </button>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-base-100 border-t border-base-300 z-20">
-      <div class="flex justify-around py-2">
-        <button onclick="setNav('home')" id="nav-home" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl">
-          <i class="fa-solid fa-house text-lg text-gray-400"></i>
-          <p class="text-[10px] text-gray-400 font-medium">Home</p>
-        </button>
-        <button onclick="setNav('send')" id="nav-send" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl">
-          <i class="fa-solid fa-paper-plane text-lg text-gray-400"></i>
-          <p class="text-[10px] text-gray-400 font-medium">Send</p>
-        </button>
-        <button onclick="setNav('dashboard')" id="nav-dashboard" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl">
-          <i class="fa-solid fa-chart-line text-lg text-gray-400"></i>
-          <p class="text-[10px] text-gray-400 font-medium">Stats</p>
-        </button>
-        <button onclick="setNav('history')" id="nav-history" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl relative">
-          <i class="fa-solid fa-clock-rotate-left text-lg text-gray-400"></i>
-          <p class="text-[10px] text-gray-400 font-medium">History</p>
-          <span id="tx-badge-nav" class="hidden absolute top-0 right-1 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold"></span>
-        </button>
-        <button onclick="setNav('settings')" id="nav-settings" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl">
-          <i class="fa-solid fa-sliders text-lg text-gray-400"></i>
-          <p class="text-[10px] text-gray-400 font-medium">Settings</p>
-        </button>
+<!-- ══ HOME ══ -->
+<section id="sec-home" class="w-11/12 mx-auto pt-4">
+  <div class="mb-4">
+    <h1 class="text-xl font-bold">Welcome back, <span id="home-username" class="text-[#3B25C1]">User</span> 👋</h1>
+    <p class="text-neutral/40 text-xs">Easy and convenient financial services.</p>
+  </div>
+  <!-- Balance card -->
+  <div class="rounded-3xl p-5 mb-4 text-white relative overflow-hidden" style="background:linear-gradient(135deg,#3B25C1 0%,#7c3aed 100%)">
+    <div class="absolute right-0 top-0 w-40 h-40 rounded-full opacity-10" style="background:white;transform:translate(30%,-30%)"></div>
+    <div class="absolute right-10 bottom-0 w-24 h-24 rounded-full opacity-10" style="background:white;transform:translateY(40%)"></div>
+    <p class="text-white/60 text-xs font-medium mb-1">Available Balance</p>
+    <h2 class="text-3xl font-black">৳<span id="balance-card">45,000</span></h2>
+    <p class="text-white/50 text-xs mt-2" id="card-account">01890642735</p>
+    <button onclick="setNav('qr')" class="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
+      <i class="fa-solid fa-qrcode text-white text-lg"></i>
+    </button>
+  </div>
+  <!-- Action Grid -->
+  <div class="grid grid-cols-4 gap-2 mb-3">
+    <button onclick="setNav('addMoney')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-plus-circle text-xl text-[#3B25C1]"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Add</p>
+    </button>
+    <button onclick="setNav('cashout')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-money-bill-wave text-xl text-[#3B25C1]"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Cashout</p>
+    </button>
+    <button onclick="setNav('send')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-paper-plane text-xl text-[#3B25C1]"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Send</p>
+    </button>
+    <button onclick="setNav('paybill')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-file-invoice text-xl text-[#3B25C1]"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Bills</p>
+    </button>
+    <button onclick="setNav('bonus')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-gift text-xl text-yellow-500"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Bonus</p>
+    </button>
+    <button onclick="setNav('contacts')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-star text-xl text-yellow-400"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Contacts</p>
+    </button>
+    <button onclick="setNav('scheduled')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1 relative">
+      <i class="fa-solid fa-clock text-xl text-purple-500"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Scheduled</p>
+      <span id="sched-ping" class="hidden absolute top-1 right-1 w-2 h-2 bg-purple-500 rounded-full ping-dot"></span>
+    </button>
+    <button onclick="setNav('converter')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-coins text-xl text-green-500"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Convert</p>
+    </button>
+  </div>
+  <!-- Recent transactions preview -->
+  <div class="card bg-base-100 rounded-2xl mb-3">
+    <div class="card-body py-3 px-4">
+      <div class="flex justify-between items-center mb-2">
+        <p class="font-bold text-sm">Recent Activity</p>
+        <button onclick="setNav('history')" class="text-xs text-[#3B25C1] font-semibold">See all</button>
       </div>
-    </nav>
+      <div id="recent-tx" class="space-y-2"></div>
+    </div>
+  </div>
+</section>
 
-    <!-- Logout Modal -->
-    <dialog id="logout-modal" class="modal">
-      <div class="modal-box rounded-3xl">
-        <h3 class="font-bold text-lg">Logout</h3>
-        <p class="py-3 text-neutral/60">Are you sure you want to logout?</p>
-        <div class="modal-action gap-3">
-          <button onclick="document.getElementById('logout-modal').close()" class="btn rounded-2xl flex-1">Cancel</button>
-          <button onclick="doLogout()" class="btn btn-error rounded-2xl flex-1 text-white">Logout</button>
-        </div>
-      </div>
-    </dialog>
+<!-- ── Add Money ── -->
+<section id="sec-addMoney" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Add Money</h1>
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-3">
+    <div><label class="label font-semibold text-sm">Select a Bank</label>
+    <select id="addmoney-bank" class="select rounded-2xl bg-base-200 w-full h-12">
+      <option disabled selected>Select Bank</option>
+      <option value="DBBL">DBBL</option><option value="IBBL">IBBL</option><option value="CITY">City Bank</option>
+    </select></div>
+    <div><label class="label font-semibold text-sm">Account Number</label>
+    <input id="addMoney-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit Account Number"/></div>
+    <div><label class="label font-semibold text-sm">Amount (BDT)</label>
+    <input id="addMoney-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount"/></div>
+    <div><label class="label font-semibold text-sm">4-Digit PIN</label>
+    <input id="addMoney-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN"/></div>
+    <button id="addMoney-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
+      <i class="fa-solid fa-plus mr-2"></i>Add Money</button>
+  </div></div>
+</section>
 
-    <script>
-      // Apply saved theme immediately
-      (function() {
-        var t = localStorage.getItem("payoo_theme") || "light";
-        document.documentElement.setAttribute("data-theme", t);
-        var icon = document.getElementById("theme-icon");
-        var toggle = document.getElementById("dark-toggle-settings");
-        if (t === "dark") { if(icon) icon.className = "fa-solid fa-sun text-lg"; if(toggle) toggle.checked = true; }
-      })();
+<!-- ── Cash Out ── -->
+<section id="sec-cashout" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Cash Out</h1>
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-3">
+    <div><label class="label font-semibold text-sm">Agent Number</label>
+    <input id="cashout-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit agent number"/></div>
+    <div><label class="label font-semibold text-sm">Amount (BDT)</label>
+    <input id="cashout-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount"/></div>
+    <div><label class="label font-semibold text-sm">4-Digit PIN</label>
+    <input id="cashout-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN"/></div>
+    <button id="cashout-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
+      <i class="fa-solid fa-money-bill-wave mr-2"></i>Withdraw</button>
+  </div></div>
+</section>
 
-      function toggleTheme() {
-        var current = document.documentElement.getAttribute("data-theme");
-        var next = current === "dark" ? "light" : "dark";
-        document.documentElement.setAttribute("data-theme", next);
-        localStorage.setItem("payoo_theme", next);
-        var icon = document.getElementById("theme-icon");
-        var toggle = document.getElementById("dark-toggle-settings");
-        if (next === "dark") { icon.className = "fa-solid fa-sun text-lg"; if(toggle) toggle.checked = true; }
-        else { icon.className = "fa-solid fa-moon text-lg"; if(toggle) toggle.checked = false; }
-      }
+<!-- ── Send Money ── -->
+<section id="sec-send" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Send Money</h1>
+  <div id="send-contacts-row" class="mb-4 hidden">
+    <p class="text-sm font-semibold text-neutral/60 mb-2">Quick Pick</p>
+    <div id="send-contacts-list" class="flex gap-3 overflow-x-auto pb-1"></div>
+  </div>
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-3">
+    <div><label class="label font-semibold text-sm">Recipient Number</label>
+    <input id="Transfer-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit number"/></div>
+    <div><label class="label font-semibold text-sm">Amount (BDT)</label>
+    <input id="Transfer-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount"/></div>
+    <div><label class="label font-semibold text-sm">4-Digit PIN</label>
+    <input id="Transfer-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN"/></div>
+    <button id="Transfer-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
+      <i class="fa-solid fa-paper-plane mr-2"></i>Send Money</button>
+  </div></div>
+</section>
 
-      function confirmLogout() { document.getElementById("logout-modal").showModal(); }
-      function doLogout() { localStorage.removeItem("payoo_logged_in"); window.location.assign("./index.html"); }
-      function clearTransactionHistory() {
-        if (confirm("Clear all transaction history?")) {
-          localStorage.removeItem("payoo_transactions");
-          renderTransactionHistory("all");
-          updateBadge();
-        }
-      }
-    </script>
+<!-- ── Pay Bill ── -->
+<section id="sec-paybill" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Pay Bill</h1>
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-3">
+    <div><label class="label font-semibold text-sm">Select a Bank</label>
+    <select id="paybill-bank" class="select rounded-2xl bg-base-200 w-full h-12">
+      <option disabled selected>Select Bank</option>
+      <option value="DBBL">DBBL</option><option value="IBBL">IBBL</option><option value="CITY">City Bank</option>
+    </select></div>
+    <div><label class="label font-semibold text-sm">Biller Account Number</label>
+    <input id="paybill-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit Account Number"/></div>
+    <div><label class="label font-semibold text-sm">Amount (BDT)</label>
+    <input id="paybill-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount"/></div>
+    <div><label class="label font-semibold text-sm">4-Digit PIN</label>
+    <input id="paybill-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN"/></div>
+    <button id="paybill-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
+      <i class="fa-solid fa-file-invoice-dollar mr-2"></i>Pay Bill</button>
+  </div></div>
+</section>
 
-    <script src="./script/machine.js"></script>
-    <script src="./script/addmoney.js"></script>
-    <script src="./script/sendmoney.js"></script>
-    <script src="./script/paybill.js"></script>
-    <script src="./script/getbonus.js"></script>
-    <script src="./script/cashout.js"></script>
-  </body>
+<!-- ── Get Bonus ── -->
+<section id="sec-bonus" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Get Bonus</h1>
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-3">
+    <div><label class="label font-semibold text-sm">Coupon Code</label>
+    <input id="Bonus-input" type="text" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter coupon code"/>
+    <p class="text-xs text-gray-400 mt-1">Try: <span class="font-mono bg-base-200 px-1 rounded">rashed</span>, <span class="font-mono bg-base-200 px-1 rounded">Fatema</span>, <span class="font-mono bg-base-200 px-1 rounded">Mercy</span></p></div>
+    <button id="Bonus-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
+      <i class="fa-solid fa-gift mr-2"></i>Redeem</button>
+  </div></div>
+</section>
+
+<!-- ── QR Code ── -->
+<section id="sec-qr" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">My QR Code</h1>
+  <div class="card bg-base-100 rounded-3xl"><div class="card-body items-center gap-4">
+    <p class="text-neutral/50 text-sm text-center">Share this QR code so others can send you money instantly</p>
+    <div class="p-4 bg-white rounded-2xl shadow-inner border border-base-200">
+      <div id="qr-canvas"></div>
+    </div>
+    <div class="text-center">
+      <p class="font-bold text-lg" id="qr-name">User</p>
+      <p class="font-mono text-gray-400 text-sm" id="qr-number">01890642735</p>
+    </div>
+    <button onclick="downloadQR()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl w-full h-11 font-semibold">
+      <i class="fa-solid fa-download mr-2"></i>Save QR Code</button>
+  </div></div>
+</section>
+
+<!-- ── Scheduled Payments ── -->
+<section id="sec-scheduled" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Scheduled Payments</h1>
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <p class="font-semibold text-sm">Add New Schedule</p>
+    <div><label class="label text-xs font-semibold">Label</label>
+    <input id="sched-label" type="text" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. Rent, Netflix"/></div>
+    <div><label class="label text-xs font-semibold">Recipient Number</label>
+    <input id="sched-number" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="11-digit number"/></div>
+    <div><label class="label text-xs font-semibold">Amount (BDT)</label>
+    <input id="sched-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Amount"/></div>
+    <div><label class="label text-xs font-semibold">Run On (Day of month)</label>
+    <input id="sched-day" type="number" min="1" max="28" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="1-28"/></div>
+    <div><label class="label text-xs font-semibold">Frequency</label>
+    <select id="sched-freq" class="select rounded-2xl bg-base-200 w-full h-11">
+      <option value="monthly">Monthly</option>
+      <option value="weekly">Weekly</option>
+    </select></div>
+    <button onclick="addSchedule()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 font-semibold">
+      <i class="fa-solid fa-clock mr-2"></i>Schedule Payment</button>
+  </div></div>
+  <div id="schedule-list" class="space-y-3"></div>
+</section>
+
+<!-- ── Currency Converter ── -->
+<section id="sec-converter" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Currency Converter</h1>
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-4">
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="label text-xs font-semibold">Amount</label>
+      <input id="conv-amount" type="number" min="0" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount" oninput="convertCurrency()"/></div>
+      <div><label class="label text-xs font-semibold">From</label>
+      <select id="conv-from" class="select rounded-2xl bg-base-200 w-full h-12" onchange="convertCurrency()">
+        <option value="BDT">🇧🇩 BDT</option><option value="USD">🇺🇸 USD</option>
+        <option value="EUR">🇪🇺 EUR</option><option value="GBP">🇬🇧 GBP</option>
+        <option value="INR">🇮🇳 INR</option><option value="SAR">🇸🇦 SAR</option>
+        <option value="AED">🇦🇪 AED</option><option value="MYR">🇲🇾 MYR</option>
+      </select></div>
+    </div>
+    <div class="flex justify-center">
+      <button onclick="swapCurrencies()" class="btn btn-circle btn-sm bg-[#3B25C1] text-white border-none">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+    </div>
+    <div><label class="label text-xs font-semibold">To</label>
+    <select id="conv-to" class="select rounded-2xl bg-base-200 w-full h-12" onchange="convertCurrency()">
+      <option value="USD">🇺🇸 USD</option><option value="BDT">🇧🇩 BDT</option>
+      <option value="EUR">🇪🇺 EUR</option><option value="GBP">🇬🇧 GBP</option>
+      <option value="INR">🇮🇳 INR</option><option value="SAR">🇸🇦 SAR</option>
+      <option value="AED">🇦🇪 AED</option><option value="MYR">🇲🇾 MYR</option>
+    </select></div>
+    <div id="conv-result" class="bg-base-200 rounded-2xl p-4 text-center">
+      <p class="text-2xl font-black text-[#3B25C1]" id="conv-output">—</p>
+      <p class="text-xs text-gray-400 mt-1" id="conv-rate"></p>
+    </div>
+    <p class="text-xs text-gray-400 text-center">* Rates are approximate and for reference only</p>
+  </div></div>
+</section>
+
+<!-- ── Profile ── -->
+<section id="sec-profile" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">My Profile</h1>
+  <div class="card bg-base-100 rounded-3xl mb-4"><div class="card-body items-center gap-3 py-6">
+    <div class="avatar-ring cursor-pointer" onclick="document.getElementById('avatar-upload').click()">
+      <div id="profile-avatar" class="w-20 h-20 rounded-full bg-[#3B25C1] flex items-center justify-center text-white font-bold text-3xl overflow-hidden">U</div>
+    </div>
+    <input type="file" id="avatar-upload" accept="image/*" class="hidden" onchange="uploadAvatar(event)"/>
+    <p class="text-xs text-gray-400">Tap avatar to change photo</p>
+    <div class="w-full space-y-3 mt-2">
+      <div><label class="label text-xs font-semibold">Display Name</label>
+      <input id="profile-name" type="text" maxlength="30" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Your name"/></div>
+      <div><label class="label text-xs font-semibold">Mobile Number</label>
+      <input id="profile-number" type="text" class="input rounded-2xl bg-base-200 w-full h-11" value="01890642735" readonly/></div>
+      <button onclick="saveProfile()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl w-full h-11 font-semibold">
+        <i class="fa-solid fa-floppy-disk mr-2"></i>Save Profile</button>
+    </div>
+  </div></div>
+  <!-- PIN Change -->
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <p class="font-bold">Change PIN</p>
+    <input id="pin-current" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Current PIN"/>
+    <input id="pin-new" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="New PIN (4 digits)"/>
+    <input id="pin-confirm" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Confirm New PIN"/>
+    <button onclick="changePin()" class="btn bg-purple-600 text-white border-none rounded-2xl h-11 font-semibold">
+      <i class="fa-solid fa-key mr-2"></i>Change PIN</button>
+  </div></div>
+</section>
+
+<!-- ── Saved Contacts ── -->
+<section id="sec-contacts" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Saved Contacts</h1>
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <p class="font-semibold text-sm">Add New Contact</p>
+    <input id="contact-name" type="text" maxlength="30" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Contact name"/>
+    <input id="contact-number" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="11-digit number"/>
+    <button onclick="addContact()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 font-semibold">
+      <i class="fa-solid fa-user-plus mr-2"></i>Save Contact</button>
+  </div></div>
+  <div id="contacts-list" class="space-y-3"></div>
+</section>
+
+<!-- ── Notifications ── -->
+<section id="sec-notifications" class="hidden w-11/12 mx-auto py-5">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="font-bold text-2xl">Notifications</h1>
+    <button onclick="clearNotifications()" class="btn btn-sm btn-ghost text-red-400 rounded-xl">
+      <i class="fa-solid fa-trash-can"></i></button>
+  </div>
+  <div id="notif-list" class="space-y-3"></div>
+</section>
+
+<!-- ── Transactions ── -->
+<section id="sec-history" class="hidden w-11/12 mx-auto py-5">
+  <div class="flex justify-between items-center mb-3">
+    <h1 class="font-bold text-2xl">Transactions</h1>
+    <div class="flex gap-1">
+      <button onclick="exportCSV()" class="btn btn-sm btn-ghost text-green-600 rounded-xl"><i class="fa-solid fa-file-csv"></i></button>
+      <button onclick="clearTransactionHistory()" class="btn btn-sm btn-ghost text-red-400 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>
+    </div>
+  </div>
+  <!-- Search bar -->
+  <div class="relative mb-3">
+    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+    <input id="tx-search" type="text" class="input rounded-2xl bg-base-100 w-full h-11 pl-10 border border-base-300" placeholder="Search transactions…" oninput="renderTransactionHistory()"/>
+  </div>
+  <!-- Date filter -->
+  <div class="grid grid-cols-2 gap-2 mb-3">
+    <div><label class="text-xs text-gray-400 mb-1 block">From</label>
+    <input id="tx-date-from" type="date" class="input rounded-2xl bg-base-100 w-full h-10 text-sm border border-base-300" onchange="renderTransactionHistory()"/></div>
+    <div><label class="text-xs text-gray-400 mb-1 block">To</label>
+    <input id="tx-date-to" type="date" class="input rounded-2xl bg-base-100 w-full h-10 text-sm border border-base-300" onchange="renderTransactionHistory()"/></div>
+  </div>
+  <!-- Filter Tabs -->
+  <div class="flex gap-2 mb-4">
+    <button id="filter-all"    onclick="setFilter('all')"    class="btn btn-sm rounded-xl bg-[#3B25C1] text-white flex-1 border-none">All</button>
+    <button id="filter-credit" onclick="setFilter('credit')" class="btn btn-sm rounded-xl bg-base-300 text-gray-500 flex-1 border-none">Credit</button>
+    <button id="filter-debit"  onclick="setFilter('debit')"  class="btn btn-sm rounded-xl bg-base-300 text-gray-500 flex-1 border-none">Debit</button>
+  </div>
+  <div id="Transaction-history" class="space-y-3 pb-4"></div>
+</section>
+
+<!-- ── Dashboard ── -->
+
+<!-- ── Bill Split Calculator ── -->
+<section id="sec-split" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Bill Splitter</h1>
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <div><label class="label text-xs font-semibold">Total Bill (BDT)</label>
+    <input id="split-total" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. 3500" oninput="calcSplit()"/></div>
+    <div><label class="label text-xs font-semibold">Number of People</label>
+    <div class="flex items-center gap-3">
+      <button onclick="changePeople(-1)" class="btn btn-sm btn-circle bg-base-200 border-none text-lg font-bold">−</button>
+      <span id="split-people-display" class="text-2xl font-black text-[#3B25C1] w-8 text-center">2</span>
+      <button onclick="changePeople(1)" class="btn btn-sm btn-circle bg-[#3B25C1] text-white border-none text-lg font-bold">+</button>
+    </div></div>
+    <div><label class="label text-xs font-semibold">Tip %</label>
+    <div class="flex gap-2">
+      <button onclick="setTip(0)" class="tip-btn btn btn-sm rounded-xl bg-base-200 border-none flex-1">No Tip</button>
+      <button onclick="setTip(10)" class="tip-btn btn btn-sm rounded-xl bg-base-200 border-none flex-1">10%</button>
+      <button onclick="setTip(15)" class="tip-btn btn btn-sm rounded-xl bg-base-200 border-none flex-1">15%</button>
+      <button onclick="setTip(20)" class="tip-btn btn btn-sm rounded-xl bg-base-200 border-none flex-1">20%</button>
+    </div></div>
+  </div></div>
+  <div id="split-result" class="card bg-gradient-to-br from-[#3B25C1] to-purple-600 rounded-2xl p-5 text-white hidden">
+    <p class="text-white/70 text-xs font-semibold uppercase mb-1">Each Person Pays</p>
+    <p id="split-per-person" class="text-4xl font-black">৳0</p>
+    <div class="flex justify-between mt-4 text-sm text-white/70">
+      <div><p class="text-white/50 text-xs">Total with tip</p><p id="split-total-tip" class="font-bold text-white">৳0</p></div>
+      <div class="text-right"><p class="text-white/50 text-xs">Tip per person</p><p id="split-tip-per" class="font-bold text-white">৳0</p></div>
+    </div>
+  </div>
+  <!-- Named split -->
+  <div class="card bg-base-100 rounded-2xl mt-4"><div class="card-body gap-3">
+    <p class="font-bold text-sm">Add People</p>
+    <div class="flex gap-2">
+      <input id="split-name-input" type="text" class="input rounded-2xl bg-base-200 flex-1 h-10" placeholder="Name"/>
+      <button onclick="addSplitPerson()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-10 px-4">Add</button>
+    </div>
+    <div id="split-people-list" class="space-y-2"></div>
+  </div></div>
+</section>
+
+<!-- ── Savings Goals ── -->
+<section id="sec-savings" class="hidden w-11/12 mx-auto py-5">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="font-bold text-2xl">Savings Goals</h1>
+    <button onclick="document.getElementById('add-goal-modal').showModal()" class="btn btn-sm bg-[#3B25C1] text-white border-none rounded-xl">
+      <i class="fa-solid fa-plus"></i> New
+    </button>
+  </div>
+  <div id="goals-list" class="space-y-4"></div>
+</section>
+
+<!-- Add Goal Modal -->
+<dialog id="add-goal-modal" class="modal">
+  <div class="modal-box rounded-3xl">
+    <h3 class="font-bold text-lg mb-4">New Savings Goal</h3>
+    <div class="space-y-3">
+      <div><label class="label text-xs font-semibold">Goal Name</label>
+      <input id="goal-name" type="text" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. New Phone, Vacation"/></div>
+      <div><label class="label text-xs font-semibold">Target Amount (BDT)</label>
+      <input id="goal-target" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. 25000"/></div>
+      <div><label class="label text-xs font-semibold">Emoji Icon</label>
+      <div class="flex gap-2 flex-wrap">
+        <span class="goal-emoji cursor-pointer text-2xl p-1 rounded-xl hover:bg-base-200 selected-emoji" onclick="selectEmoji(this)">🎯</span>
+        <span class="goal-emoji cursor-pointer text-2xl p-1 rounded-xl hover:bg-base-200" onclick="selectEmoji(this)">📱</span>
+        <span class="goal-emoji cursor-pointer text-2xl p-1 rounded-xl hover:bg-base-200" onclick="selectEmoji(this)">✈️</span>
+        <span class="goal-emoji cursor-pointer text-2xl p-1 rounded-xl hover:bg-base-200" onclick="selectEmoji(this)">🏠</span>
+        <span class="goal-emoji cursor-pointer text-2xl p-1 rounded-xl hover:bg-base-200" onclick="selectEmoji(this)">🚗</span>
+        <span class="goal-emoji cursor-pointer text-2xl p-1 rounded-xl hover:bg-base-200" onclick="selectEmoji(this)">💍</span>
+        <span class="goal-emoji cursor-pointer text-2xl p-1 rounded-xl hover:bg-base-200" onclick="selectEmoji(this)">📚</span>
+        <span class="goal-emoji cursor-pointer text-2xl p-1 rounded-xl hover:bg-base-200" onclick="selectEmoji(this)">💻</span>
+      </div></div>
+    </div>
+    <div class="modal-action gap-3 mt-5">
+      <button onclick="document.getElementById('add-goal-modal').close()" class="btn rounded-2xl flex-1">Cancel</button>
+      <button onclick="addSavingsGoal()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl flex-1">Create Goal</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Deposit to Goal Modal -->
+<dialog id="deposit-goal-modal" class="modal">
+  <div class="modal-box rounded-3xl">
+    <h3 class="font-bold text-lg mb-1">Add to Goal</h3>
+    <p id="deposit-goal-name" class="text-neutral/50 text-sm mb-4"></p>
+    <input id="deposit-goal-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Amount to add (BDT)"/>
+    <div class="modal-action gap-3 mt-4">
+      <button onclick="document.getElementById('deposit-goal-modal').close()" class="btn rounded-2xl flex-1">Cancel</button>
+      <button onclick="depositToGoal()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl flex-1">Deposit</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ── Budget Planner ── -->
+<section id="sec-budget" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Budget Planner</h1>
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <p class="font-semibold text-sm">Set Category Budget</p>
+    <div class="grid grid-cols-2 gap-2">
+      <div><label class="label text-xs font-semibold">Category</label>
+      <select id="budget-cat" class="select rounded-2xl bg-base-200 w-full h-11">
+        <option value="Food">🍔 Food</option>
+        <option value="Transport">🚌 Transport</option>
+        <option value="Bills">💡 Bills</option>
+        <option value="Shopping">🛍️ Shopping</option>
+        <option value="Health">💊 Health</option>
+        <option value="Entertainment">🎬 Entertainment</option>
+        <option value="Other">📦 Other</option>
+      </select></div>
+      <div><label class="label text-xs font-semibold">Monthly Limit (BDT)</label>
+      <input id="budget-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Amount"/></div>
+    </div>
+    <button onclick="addBudget()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 font-semibold">
+      <i class="fa-solid fa-plus mr-2"></i>Set Budget</button>
+  </div></div>
+  <div id="budget-list" class="space-y-3"></div>
+</section>
+
+<!-- ── Loan Tracker ── -->
+<section id="sec-loans" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Loan Tracker</h1>
+  <!-- Summary -->
+  <div class="grid grid-cols-2 gap-3 mb-4">
+    <div class="card bg-green-50 rounded-2xl p-4">
+      <p class="text-xs text-green-600 font-bold uppercase">You'll Receive</p>
+      <p id="loan-receivable" class="text-xl font-black text-green-600 mt-1">৳0</p>
+    </div>
+    <div class="card bg-red-50 rounded-2xl p-4">
+      <p class="text-xs text-red-500 font-bold uppercase">You Owe</p>
+      <p id="loan-payable" class="text-xl font-black text-red-500 mt-1">৳0</p>
+    </div>
+  </div>
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <p class="font-semibold text-sm">Add Record</p>
+    <div class="flex gap-2">
+      <button id="loan-type-lent" onclick="setLoanType('lent')" class="btn btn-sm flex-1 rounded-xl bg-green-500 text-white border-none">I Lent</button>
+      <button id="loan-type-borrowed" onclick="setLoanType('borrowed')" class="btn btn-sm flex-1 rounded-xl bg-base-200 border-none">I Borrowed</button>
+    </div>
+    <input id="loan-person" type="text" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Person's name"/>
+    <input id="loan-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Amount (BDT)"/>
+    <input id="loan-note" type="text" class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Note (optional)"/>
+    <button onclick="addLoan()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 font-semibold">
+      <i class="fa-solid fa-handshake mr-2"></i>Add Record</button>
+  </div></div>
+  <div id="loans-list" class="space-y-3"></div>
+</section>
+
+<!-- ── Referral System ── -->
+<section id="sec-referral" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-4">Referral & Rewards</h1>
+  <!-- My code -->
+  <div class="rounded-3xl p-5 mb-4 text-white relative overflow-hidden" style="background:linear-gradient(135deg,#7c3aed,#3B25C1)">
+    <div class="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-white/10"></div>
+    <p class="text-white/70 text-xs font-semibold uppercase mb-1">Your Referral Code</p>
+    <p id="my-referral-code" class="text-3xl font-black tracking-widest mb-3">PAYOO00</p>
+    <button onclick="copyReferralCode()" class="btn btn-sm bg-white/20 hover:bg-white/30 text-white border-none rounded-xl">
+      <i class="fa-solid fa-copy mr-1"></i>Copy Code</button>
+    <div class="mt-3 flex gap-4 text-sm">
+      <div><p class="text-white/50 text-xs">Referrals</p><p id="referral-count" class="font-black text-white text-xl">0</p></div>
+      <div><p class="text-white/50 text-xs">Earned</p><p id="referral-earned" class="font-black text-white text-xl">৳0</p></div>
+    </div>
+  </div>
+  <!-- Redeem -->
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <p class="font-bold">Redeem a Referral Code</p>
+    <p class="text-sm text-neutral/50">Enter a friend's code to earn ৳200 bonus each!</p>
+    <div class="flex gap-2">
+      <input id="referral-input" type="text" maxlength="10" class="input rounded-2xl bg-base-200 flex-1 h-11" placeholder="Enter code (e.g. PAYOO12345)"/>
+      <button onclick="redeemReferral()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 px-5 font-semibold">Redeem</button>
+    </div>
+  </div></div>
+  <!-- How it works -->
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-2">
+    <p class="font-bold mb-1">How it works</p>
+    <div class="flex gap-3 items-start"><div class="w-6 h-6 rounded-full bg-[#3B25C1] text-white flex items-center justify-center text-xs font-bold shrink-0">1</div><p class="text-sm text-neutral/60">Share your referral code with friends</p></div>
+    <div class="flex gap-3 items-start"><div class="w-6 h-6 rounded-full bg-[#3B25C1] text-white flex items-center justify-center text-xs font-bold shrink-0">2</div><p class="text-sm text-neutral/60">They enter your code in Payoo</p></div>
+    <div class="flex gap-3 items-start"><div class="w-6 h-6 rounded-full bg-[#3B25C1] text-white flex items-center justify-center text-xs font-bold shrink-0">3</div><p class="text-sm text-neutral/60">You both earn ৳200 bonus instantly!</p></div>
+  </div></div>
+</section>
+
+<!-- ── Achievements ── -->
+<section id="sec-achievements" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-1">Achievements</h1>
+  <p class="text-neutral/40 text-sm mb-5">Unlock badges by using Payoo</p>
+  <div id="achievements-grid" class="grid grid-cols-3 gap-3"></div>
+</section>
+
+<section id="sec-dashboard" class="hidden"></section>
+
+<!-- ── Settings ── -->
+<section id="sec-settings" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-5">Settings</h1>
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <p class="font-bold">Monthly Spending Limit</p>
+    <p class="text-sm text-neutral/50">Get alerted at 80% and 100% of your limit.</p>
+    <div class="flex gap-2">
+      <input id="limit-input" type="number" min="0" class="input rounded-2xl bg-base-200 flex-1 h-11" placeholder="e.g. 10000"/>
+      <button onclick="saveSpendingLimit()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 px-5 font-semibold">Save</button>
+    </div>
+    <div id="current-limit-display" class="text-sm text-neutral/50"></div>
+  </div></div>
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body flex-row items-center justify-between">
+    <div><p class="font-bold">Dark Mode</p><p class="text-sm text-neutral/50">Toggle theme</p></div>
+    <input type="checkbox" id="dark-toggle-settings" class="toggle toggle-primary" onchange="toggleTheme()"/>
+  </div></div>
+  <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+    <p class="font-bold">Export Statement</p>
+    <button onclick="exportCSV()" class="btn bg-green-600 text-white border-none rounded-2xl h-11 font-semibold">
+      <i class="fa-solid fa-file-csv mr-2"></i>Download CSV</button>
+  </div></div>
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-2">
+    <p class="font-bold">About</p>
+    <p class="text-sm text-neutral/50">Payoo v3.0 — Your trusted mobile wallet</p>
+    <button onclick="setNav('profile')" class="btn btn-ghost rounded-2xl h-10 text-sm">Edit Profile & Change PIN →</button>
+  </div></div>
+</section>
+
+</main>
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-base-100 border-t border-base-300 z-20">
+  <div class="flex justify-around py-2">
+    <button onclick="setNav('home')" id="nav-home" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl">
+      <i class="fa-solid fa-house text-lg text-gray-400"></i>
+      <p class="text-[10px] text-gray-400 font-medium">Home</p>
+    </button>
+    <button onclick="setNav('send')" id="nav-send" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl">
+      <i class="fa-solid fa-paper-plane text-lg text-gray-400"></i>
+      <p class="text-[10px] text-gray-400 font-medium">Send</p>
+    </button>
+    <button onclick="setNav('dashboard')" id="nav-dashboard" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl">
+      <i class="fa-solid fa-chart-line text-lg text-gray-400"></i>
+      <p class="text-[10px] text-gray-400 font-medium">Stats</p>
+    </button>
+    <button onclick="setNav('history')" id="nav-history" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl relative">
+      <i class="fa-solid fa-clock-rotate-left text-lg text-gray-400"></i>
+      <p class="text-[10px] text-gray-400 font-medium">History</p>
+      <span id="tx-badge-nav" class="hidden absolute top-0 right-1 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold"></span>
+    </button>
+    <button onclick="setNav('settings')" id="nav-settings" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl">
+      <i class="fa-solid fa-sliders text-lg text-gray-400"></i>
+      <p class="text-[10px] text-gray-400 font-medium">Settings</p>
+    </button>
+  </div>
+</nav>
+
+<!-- Logout Modal -->
+<dialog id="logout-modal" class="modal">
+  <div class="modal-box rounded-3xl">
+    <h3 class="font-bold text-lg">Logout</h3>
+    <p class="py-3 text-neutral/60">Are you sure you want to logout?</p>
+    <div class="modal-action gap-3">
+      <button onclick="document.getElementById('logout-modal').close()" class="btn rounded-2xl flex-1">Cancel</button>
+      <button onclick="doLogout()" class="btn btn-error rounded-2xl flex-1 text-white">Logout</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  var t=localStorage.getItem("payoo_theme")||"light";
+  document.documentElement.setAttribute("data-theme",t);
+  var icon=document.getElementById("theme-icon");
+  var tog=document.getElementById("dark-toggle-settings");
+  if(t==="dark"){if(icon)icon.className="fa-solid fa-sun text-base";if(tog)tog.checked=true;}
+})();
+function toggleTheme(){
+  var c=document.documentElement.getAttribute("data-theme");
+  var n=c==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",n);
+  localStorage.setItem("payoo_theme",n);
+  var icon=document.getElementById("theme-icon");
+  var tog=document.getElementById("dark-toggle-settings");
+  if(n==="dark"){icon.className="fa-solid fa-sun text-base";if(tog)tog.checked=true;}
+  else{icon.className="fa-solid fa-moon text-base";if(tog)tog.checked=false;}
+}
+function confirmLogout(){document.getElementById("logout-modal").showModal();}
+      // expose new nav sections globally so machine.js ALL_SECTIONS picks them up
+      window.EXTRA_SECTIONS=["split","savings","budget","loans","referral","achievements"];
+function doLogout(){localStorage.removeItem("payoo_logged_in");window.location.assign("./index.html");}
+function clearTransactionHistory(){
+  if(confirm("Clear all transaction history?")){
+    localStorage.removeItem("payoo_transactions");
+    renderTransactionHistory();updateBadge();
+  }
+}
+</script>
+
+<script src="./script/machine.js"></script>
+<script src="./script/addmoney.js"></script>
+<script src="./script/sendmoney.js"></script>
+<script src="./script/paybill.js"></script>
+<script src="./script/getbonus.js"></script>
+<script src="./script/cashout.js"></script>
+ <script src="./script/features.js"></script>
+</body>
 </html>

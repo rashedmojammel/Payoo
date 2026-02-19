@@ -1,123 +1,131 @@
-// ─── Rate Limiting ────────────────────────────────────────────────────────────
-var MAX_ATTEMPTS = 3;
-var LOCKOUT_DURATION = 30 * 1000; // 30 seconds
+<!doctype html>
+<html data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+    <title>Payoo | Login</title>
+    <link rel="shortcut icon" href="./assets/logo.png" type="image/x-icon">
+    <style type="text/tailwindcss">
+      * { font-family: "Outfit", sans-serif; }
 
-function getLockState() {
-  try { return JSON.parse(localStorage.getItem("payoo_lock") || "{}"); }
-  catch { return {}; }
-}
-function saveLockState(state) {
-  localStorage.setItem("payoo_lock", JSON.stringify(state));
-}
-function isLockedOut() {
-  var state = getLockState();
-  if (!state.lockedUntil) return false;
-  if (Date.now() < state.lockedUntil) return true;
-  saveLockState({ attempts: 0, lockedUntil: null });
-  return false;
-}
-function getRemainingLockSeconds() {
-  var state = getLockState();
-  return Math.ceil((state.lockedUntil - Date.now()) / 1000);
-}
-function recordFailedAttempt() {
-  var state = getLockState();
-  state.attempts = (state.attempts || 0) + 1;
-  if (state.attempts >= MAX_ATTEMPTS) state.lockedUntil = Date.now() + LOCKOUT_DURATION;
-  saveLockState(state);
-  return state;
-}
-function resetAttempts() { saveLockState({ attempts: 0, lockedUntil: null }); }
-function getAttempts() { return getLockState().attempts || 0; }
+      /* Splash screen */
+      #splash {
+        position: fixed; inset: 0; z-index: 9999;
+        background: #3B25C1;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        transition: opacity 0.6s ease, transform 0.6s ease;
+      }
+      #splash.hide { opacity: 0; transform: scale(1.05); pointer-events: none; }
+      #splash-logo { animation: splashPop 0.7s cubic-bezier(.34,1.56,.64,1) both; }
+      #splash-ring {
+        width: 80px; height: 80px; border-radius: 50%;
+        border: 4px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        animation: spin 0.9s linear infinite;
+        margin-top: 32px;
+      }
+      @keyframes splashPop {
+        from { opacity:0; transform: scale(0.5); }
+        to   { opacity:1; transform: scale(1); }
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
 
-// ─── Countdown Timer ──────────────────────────────────────────────────────────
-var countdownInterval = null;
+      /* Login card slide-up */
+      .login-card { animation: slideUp 0.5s 1s cubic-bezier(.34,1.56,.64,1) both; }
+      @keyframes slideUp {
+        from { opacity:0; transform: translateY(40px); }
+        to   { opacity:1; transform: translateY(0); }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen max-w-md bg-base-200 mx-auto">
 
-function startCountdown() {
-  var btn = document.getElementById("login-btn");
-  var countdownEl = document.getElementById("lockout-countdown");
-  clearInterval(countdownInterval);
-  btn.disabled = true;
+    <!-- Splash Screen -->
+    <div id="splash">
+      <div id="splash-logo" class="text-center">
+        <div class="text-white text-5xl font-black tracking-tight">Pay<span class="opacity-60">oo</span></div>
+        <p class="text-white/60 mt-2 text-sm font-medium">Your trusted mobile wallet</p>
+      </div>
+      <div id="splash-ring"></div>
+    </div>
 
-  countdownInterval = setInterval(function () {
-    if (!isLockedOut()) {
-      clearInterval(countdownInterval);
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-2"></i>Login';
-      if (countdownEl) countdownEl.classList.add("hidden");
-      return;
-    }
-    var secs = getRemainingLockSeconds();
-    btn.innerHTML = '<i class="fa-solid fa-lock mr-2"></i>Locked (' + secs + 's)';
-    if (countdownEl) {
-      countdownEl.classList.remove("hidden");
-      countdownEl.textContent = "Too many failed attempts. Try again in " + secs + " seconds.";
-    }
-  }, 500);
-}
+    <!-- Login Page -->
+    <div class="flex flex-col items-center justify-center min-h-screen px-4">
+      <div class="mb-8 text-center login-card">
+        <div class="text-4xl font-black text-[#3B25C1] tracking-tight">Pay<span class="text-neutral">oo</span></div>
+        <p class="text-neutral/50 text-sm mt-1">Your trusted mobile wallet</p>
+      </div>
 
-// ─── Init: check lock on page load ───────────────────────────────────────────
-(function () {
-  if (isLockedOut()) {
-    startCountdown();
-  } else {
-    var attempts = getAttempts();
-    if (attempts > 0) {
-      var rem = MAX_ATTEMPTS - attempts;
-      showLoginToast(rem + " attempt" + (rem === 1 ? "" : "s") + " remaining before lockout", "warning");
-    }
-  }
-})();
+      <div class="card bg-base-100 w-full max-w-sm rounded-3xl shadow-xl login-card">
+        <div class="card-body gap-4">
+          <h2 class="text-xl font-bold">Welcome back 👋</h2>
 
-// ─── Login Handler ────────────────────────────────────────────────────────────
-document.getElementById("login-btn").addEventListener("click", function () {
-  if (isLockedOut()) {
-    showLoginToast("Account locked. Wait " + getRemainingLockSeconds() + "s.", "error");
-    return;
-  }
+          <div class="space-y-3">
+            <div>
+              <label class="label text-neutral font-semibold text-sm mb-1">Mobile Number</label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                <input id="number-input" type="text" maxlength="11"
+                  class="input rounded-2xl bg-base-200 w-full pl-10 h-12"
+                  placeholder="Enter your 11-digit number" />
+              </div>
+            </div>
 
-  var number = document.getElementById("number-input").value.trim();
-  var pin    = document.getElementById("input-pin").value.trim();
+            <div>
+              <label class="label text-neutral font-semibold text-sm mb-1">4-Digit PIN</label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"><i class="fa-solid fa-lock"></i></span>
+                <input id="input-pin" type="password" maxlength="4"
+                  class="input rounded-2xl bg-base-200 w-full pl-10 pr-12 h-12"
+                  placeholder="Enter your PIN" />
+                <button type="button" id="toggle-pin"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
 
-  if (!number || number.length !== 11) {
-    showLoginToast("Please enter a valid 11-digit mobile number", "error");
-    return;
-  }
-  if (!pin || pin.length !== 4) {
-    showLoginToast("Please enter your 4-digit PIN", "error");
-    return;
-  }
+          <button id="login-btn"
+            class="btn h-12 rounded-2xl bg-[#3B25C1] border-none text-white text-base font-semibold w-full hover:bg-[#2f1da0] transition-colors">
+            <i class="fa-solid fa-right-to-bracket mr-2"></i>Login
+          </button>
 
-  if (number === "01890642735" && pin === "6427") {
-    resetAttempts();
-    localStorage.setItem("payoo_logged_in", "true");
-    localStorage.setItem("payoo_user", number);
-    showLoginToast("Login successful! Redirecting...", "success");
-    setTimeout(function () { window.location.assign("./home.html"); }, 1000);
-  } else {
-    var state = recordFailedAttempt();
-    document.getElementById("input-pin").value = "";
-    if (state.lockedUntil) {
-      showLoginToast("Too many failed attempts! Locked for 30 seconds.", "error");
-      startCountdown();
-    } else {
-      var remaining = MAX_ATTEMPTS - state.attempts;
-      showLoginToast("Wrong number or PIN. " + remaining + " attempt" + (remaining === 1 ? "" : "s") + " left.", "error");
-    }
-  }
-});
+          <p id="lockout-countdown" class="hidden text-center text-red-500 text-sm font-semibold bg-red-50 rounded-xl py-2 px-3"></p>
 
-// ─── Toast Helper ─────────────────────────────────────────────────────────────
-function showLoginToast(message, type) {
-  var container = document.getElementById("login-toast");
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "login-toast";
-    container.className = "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-sm";
-    document.body.appendChild(container);
-  }
-  var colors = { success: "bg-green-500", error: "bg-red-500", warning: "bg-yellow-500" };
-  var icons  = { success: "fa-circle-check", error: "fa-circle-xmark", warning: "fa-triangle-exclamation" };
-  container.innerHTML = '<div class="flex items-center gap-3 ' + colors[type] + ' text-white px-4 py-3 rounded-2xl shadow-lg"><i class="fa-solid ' + icons[type] + '"></i><span class="text-sm font-semibold">' + message + '</span></div>';
-  setTimeout(function () { container.innerHTML = ""; }, 3500);
-}
+          <p class="text-center text-xs text-gray-400">
+            Demo: <span class="font-mono bg-base-200 px-1 rounded">01890642735</span> PIN: <span class="font-mono bg-base-200 px-1 rounded">6427</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Splash screen
+      window.addEventListener("load", function() {
+        setTimeout(function() {
+          document.getElementById("splash").classList.add("hide");
+          setTimeout(function() { document.getElementById("splash").remove(); }, 700);
+        }, 1800);
+      });
+
+      // PIN show/hide
+      document.getElementById("toggle-pin").addEventListener("click", function() {
+        var pin = document.getElementById("input-pin");
+        var icon = this.querySelector("i");
+        if (pin.type === "password") { pin.type = "text"; icon.classList.replace("fa-eye","fa-eye-slash"); }
+        else { pin.type = "password"; icon.classList.replace("fa-eye-slash","fa-eye"); }
+      });
+
+      // Apply saved theme
+      var theme = localStorage.getItem("payoo_theme") || "light";
+      document.documentElement.setAttribute("data-theme", theme);
+    </script>
+    <script src="./script/login.js"></script>
+  </body>
+</html>

@@ -505,7 +505,7 @@ function renderDashboard(){
 })();
 
 // ─── Navigation ───────────────────────────────────
-var ALL_SECTIONS=["home","addMoney","cashout","send","paybill","bonus","qr","scheduled","converter","profile","contacts","notifications","history","dashboard","settings","split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes","transport"];
+var ALL_SECTIONS=["home","addMoney","cashout","send","paybill","bonus","qr","scheduled","converter","profile","contacts","notifications","history","dashboard","settings","split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes","transport","finance"];
 var NAV_IDS=["home","send","dashboard","history","settings"];
 function setNav(id){
   ALL_SECTIONS.forEach(function(s){var e=document.getElementById("sec-"+s);if(e)e.classList.add("hidden");});
@@ -527,8 +527,10 @@ function setNav(id){
   if(id==="notes")   renderNotes();
   if(id==="paybill") initUtilities();
   if(id==="transport") initTransport();
+  if(id==="finance")   initFinance();
+  if(id==="ai") initAI();
 }
-function showonly(id){var map={"addMoney":"addMoney","cashout":"cashout","TransferMoney":"send","Paybill":"paybill","BonusCupon":"bonus","Transaction":"history","Dashboard":"dashboard"};setNav(map[id]||id);}
+function showonly(id){var map={"addMoney":"addMoney","cashout":"cashout","TransferMoney":"send","Paybill":"paybill","BonusCupon":"bonus","Transaction":"history","Dashboard":"dashboard" ,"Aiadvisor":"ai"};setNav(map[id]||id);}
 
 // ─── Badge ────────────────────────────────────────
 function updateBadge(){

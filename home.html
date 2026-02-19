@@ -183,6 +183,15 @@
       <i class="fa-solid fa-van-shuttle text-xl text-sky-500"></i>
       <p class="text-neutral/70 text-[10px] font-medium">Travel</p>
     </button>
+    <button onclick="setNav('finance')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-chart-pie text-xl text-emerald-600"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Finance</p>
+    </button>
+    <button onclick="setNav('ai')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1 relative">
+      <i class="fa-solid fa-robot text-xl text-violet-500"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">AI Advisor</p>
+      <span class="absolute top-1 right-1 w-2 h-2 bg-violet-500 rounded-full ping-dot"></span>
+    </button>
   </div>
   <!-- Recent transactions preview -->
   <div class="card bg-base-100 rounded-2xl mb-3">
@@ -1491,6 +1500,401 @@
   </div>
 
 </section>
+<!-- ════════════════════════════════════════════════
+     FINANCE TOOLS HUB
+     5 tools in one section with an inner tab bar:
+     Gold/Silver | Zakat | Tax | FDR | DPS
+════════════════════════════════════════════════ -->
+<section id="sec-finance" class="hidden w-11/12 mx-auto py-5">
+
+  <h1 class="font-bold text-2xl mb-1">Finance Tools</h1>
+  <p class="text-neutral/40 text-xs mb-4">Calculators & trackers for your money</p>
+
+  <!-- ── Inner tab bar ── -->
+  <div class="flex gap-2 overflow-x-auto pb-2 mb-5">
+    <button onclick="setFinanceTab('gold')"  id="ftab-gold"  class="ftab-btn btn btn-sm rounded-xl bg-[#3B25C1] text-white border-none shrink-0">🥇 Gold</button>
+    <button onclick="setFinanceTab('zakat')" id="ftab-zakat" class="ftab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">☪️ Zakat</button>
+    <button onclick="setFinanceTab('tax')"   id="ftab-tax"   class="ftab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">🧾 Tax</button>
+    <button onclick="setFinanceTab('fdr')"   id="ftab-fdr"   class="ftab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">🏦 FDR</button>
+    <button onclick="setFinanceTab('dps')"   id="ftab-dps"   class="ftab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">💳 DPS</button>
+  </div>
+
+
+  <!-- ══ 1. GOLD & SILVER PRICE TRACKER ══ -->
+  <div id="fp-gold">
+
+    <!-- Live price cards -->
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="rounded-2xl p-4 text-white" style="background:linear-gradient(135deg,#b45309,#d97706)">
+        <p class="text-white/70 text-xs mb-1">Gold (22K) per gram</p>
+        <p class="font-black text-2xl">৳<span id="gold-22k-price">9,450</span></p>
+        <p class="text-white/60 text-xs mt-1">Per bhori (11.664g): ৳<span id="gold-22k-bhori">110,221</span></p>
+      </div>
+      <div class="rounded-2xl p-4 text-white" style="background:linear-gradient(135deg,#92400e,#b45309)">
+        <p class="text-white/70 text-xs mb-1">Gold (21K) per gram</p>
+        <p class="font-black text-2xl">৳<span id="gold-21k-price">9,020</span></p>
+        <p class="text-white/60 text-xs mt-1">Per bhori (11.664g): ৳<span id="gold-21k-bhori">105,209</span></p>
+      </div>
+      <div class="rounded-2xl p-4 text-white" style="background:linear-gradient(135deg,#475569,#64748b)">
+        <p class="text-white/70 text-xs mb-1">Silver per gram</p>
+        <p class="font-black text-2xl">৳<span id="silver-price">105</span></p>
+        <p class="text-white/60 text-xs mt-1">Per bhori (11.664g): ৳<span id="silver-bhori">1,225</span></p>
+      </div>
+      <div class="rounded-2xl p-4 bg-base-100">
+        <p class="text-neutral/50 text-xs mb-1">Gold (18K) per gram</p>
+        <p class="font-black text-2xl">৳<span id="gold-18k-price">7,730</span></p>
+        <p class="text-neutral/40 text-xs mt-1">Per bhori: ৳<span id="gold-18k-bhori">90,151</span></p>
+      </div>
+    </div>
+    <p class="text-xs text-gray-400 text-center mb-4">Prices based on Bangladesh Jewellers Association (BAJUS) rates</p>
+
+    <!-- Gold / Silver calculator -->
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Gold / Silver Calculator</p>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">Metal & Purity</label>
+          <select id="gold-calc-type" class="select rounded-2xl bg-base-200 w-full h-11" onchange="calcGold()">
+            <option value="9450">Gold 22K</option>
+            <option value="9020">Gold 21K</option>
+            <option value="7730">Gold 18K</option>
+            <option value="105">Silver</option>
+          </select>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">Unit</label>
+          <select id="gold-calc-unit" class="select rounded-2xl bg-base-200 w-full h-11" onchange="calcGold()">
+            <option value="1">Gram</option>
+            <option value="11.664">Bhori (11.664g)</option>
+            <option value="10">10 Grams</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="label font-semibold text-xs">Quantity</label>
+        <input id="gold-qty" type="number" min="0" step="0.01"
+          class="input rounded-2xl bg-base-200 w-full h-11"
+          placeholder="e.g. 5" oninput="calcGold()"/>
+      </div>
+      <!-- Result -->
+      <div id="gold-result" class="hidden rounded-2xl bg-yellow-50 border border-yellow-200 p-4 text-center">
+        <p class="text-yellow-700 text-xs font-semibold">Estimated Value</p>
+        <p class="text-yellow-800 font-black text-3xl mt-1">৳<span id="gold-value">0</span></p>
+      </div>
+    </div></div>
+
+    <!-- Price alert -->
+    <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Price Alert</p>
+      <p class="text-xs text-neutral/50">Get notified when gold price goes above or below your target</p>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">Alert Type</label>
+          <select id="gold-alert-type" class="select rounded-2xl bg-base-200 w-full h-11">
+            <option value="above">Above (৳/gram)</option>
+            <option value="below">Below (৳/gram)</option>
+          </select>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">Target Price (৳)</label>
+          <input id="gold-alert-price" type="number" min="1"
+            class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. 10000"/>
+        </div>
+      </div>
+      <button onclick="setGoldAlert()"
+        class="btn bg-yellow-600 hover:bg-yellow-700 text-white border-none rounded-2xl h-11 font-semibold">
+        <i class="fa-solid fa-bell mr-2"></i>Set Alert
+      </button>
+      <div id="gold-alerts-list" class="space-y-2"></div>
+    </div></div>
+  </div><!-- end fp-gold -->
+
+
+  <!-- ══ 2. ZAKAT CALCULATOR ══ -->
+  <div id="fp-zakat" class="hidden">
+
+    <!-- Nisab info banner -->
+    <div class="rounded-2xl p-4 mb-4 bg-emerald-50 border border-emerald-200">
+      <p class="font-bold text-emerald-800 text-sm">📖 Nisab Threshold (2024)</p>
+      <div class="grid grid-cols-2 gap-2 mt-2 text-xs text-emerald-700">
+        <div>🥇 Gold Nisab (87.48g): <span class="font-bold">৳8,27,586</span></div>
+        <div>🪙 Silver Nisab (612.36g): <span class="font-bold">৳64,298</span></div>
+      </div>
+      <p class="text-xs text-emerald-600 mt-2">Zakat rate: <span class="font-bold">2.5%</span> of total qualifying wealth</p>
+    </div>
+
+    <!-- Wealth inputs -->
+    <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Enter Your Assets</p>
+
+      <div>
+        <label class="label font-semibold text-xs">💰 Cash & Bank Balance (BDT)</label>
+        <input id="zk-cash" type="number" min="0"
+          class="input rounded-2xl bg-base-200 w-full h-11"
+          placeholder="e.g. 500000" oninput="calcZakat()"/>
+      </div>
+      <div>
+        <label class="label font-semibold text-xs">🥇 Gold Value (BDT)</label>
+        <input id="zk-gold" type="number" min="0"
+          class="input rounded-2xl bg-base-200 w-full h-11"
+          placeholder="Current market value" oninput="calcZakat()"/>
+      </div>
+      <div>
+        <label class="label font-semibold text-xs">🪙 Silver Value (BDT)</label>
+        <input id="zk-silver" type="number" min="0"
+          class="input rounded-2xl bg-base-200 w-full h-11"
+          placeholder="Current market value" oninput="calcZakat()"/>
+      </div>
+      <div>
+        <label class="label font-semibold text-xs">📦 Business / Stock Value (BDT)</label>
+        <input id="zk-business" type="number" min="0"
+          class="input rounded-2xl bg-base-200 w-full h-11"
+          placeholder="Inventory, investments etc." oninput="calcZakat()"/>
+      </div>
+      <div>
+        <label class="label font-semibold text-xs">💳 Money Owed TO You (BDT)</label>
+        <input id="zk-receivable" type="number" min="0"
+          class="input rounded-2xl bg-base-200 w-full h-11"
+          placeholder="Loans given to others" oninput="calcZakat()"/>
+      </div>
+      <div>
+        <label class="label font-semibold text-xs">➖ Debts / Liabilities (BDT)</label>
+        <input id="zk-debts" type="number" min="0"
+          class="input rounded-2xl bg-base-200 w-full h-11"
+          placeholder="What you owe others" oninput="calcZakat()"/>
+      </div>
+    </div></div>
+
+    <!-- Zakat result -->
+    <div id="zakat-result" class="hidden space-y-3">
+      <div class="rounded-2xl p-5 text-white" style="background:linear-gradient(135deg,#059669,#10b981)">
+        <p class="text-white/70 text-xs mb-1">Your Zakat Due</p>
+        <p class="font-black text-4xl">৳<span id="zk-due">0</span></p>
+        <p class="text-white/60 text-xs mt-2">Net Zakatable Wealth: ৳<span id="zk-net">0</span></p>
+      </div>
+      <div id="zakat-eligible-msg" class="rounded-2xl p-4 bg-base-100 text-sm text-center font-semibold"></div>
+    </div>
+    <div id="zakat-below-nisab" class="hidden rounded-2xl bg-orange-50 border border-orange-200 p-4 text-center text-sm text-orange-700 font-semibold">
+      ℹ️ Your wealth is below the Nisab threshold — Zakat is not yet obligatory.
+    </div>
+
+  </div><!-- end fp-zakat -->
+
+
+  <!-- ══ 3. TAX / INCOME CALCULATOR ══ -->
+  <div id="fp-tax" class="hidden">
+
+    <!-- Tax year note -->
+    <div class="rounded-2xl p-3 mb-4 bg-blue-50 border border-blue-200 text-xs text-blue-700">
+      📋 Based on Bangladesh National Budget FY 2023–24 tax slabs for individual taxpayers
+    </div>
+
+    <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Income Details</p>
+
+      <div>
+        <label class="label font-semibold text-xs">Taxpayer Category</label>
+        <select id="tax-category" class="select rounded-2xl bg-base-200 w-full h-12" onchange="calcTax()">
+          <option value="general">General (Male)</option>
+          <option value="female">Female / 65+ / Disabled</option>
+          <option value="freedom">Freedom Fighter</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label font-semibold text-xs">Annual Income (BDT)</label>
+        <input id="tax-income" type="number" min="0"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="Total yearly income" oninput="calcTax()"/>
+      </div>
+
+      <div>
+        <label class="label font-semibold text-xs">Investment Rebate (BDT) — optional</label>
+        <input id="tax-invest" type="number" min="0"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="DPS, insurance, savings bond etc." oninput="calcTax()"/>
+      </div>
+    </div></div>
+
+    <!-- Tax result -->
+    <div id="tax-result" class="hidden space-y-3">
+      <div class="rounded-2xl p-5 text-white" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">
+        <p class="text-white/70 text-xs mb-1">Estimated Income Tax</p>
+        <p class="font-black text-4xl">৳<span id="tax-due">0</span></p>
+        <p class="text-white/60 text-xs mt-2">After investment rebate: ৳<span id="tax-after-rebate">0</span></p>
+      </div>
+      <!-- Slab breakdown -->
+      <div class="card bg-base-100 rounded-2xl p-4">
+        <p class="font-bold text-sm mb-3">Tax Slab Breakdown</p>
+        <div id="tax-slabs" class="space-y-2"></div>
+      </div>
+      <div class="card bg-base-100 rounded-2xl p-4 space-y-1 text-sm">
+        <div class="flex justify-between"><span class="text-gray-400">Gross Tax</span><span id="tax-gross" class="font-bold"></span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Investment Rebate (15%)</span><span id="tax-rebate-amt" class="font-bold text-green-600"></span></div>
+        <div class="flex justify-between border-t border-base-200 pt-1 mt-1"><span class="font-bold">Net Tax Payable</span><span id="tax-net" class="font-black text-blue-600"></span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Monthly Equivalent</span><span id="tax-monthly" class="font-bold text-gray-500"></span></div>
+      </div>
+    </div>
+
+  </div><!-- end fp-tax -->
+
+
+  <!-- ══ 4. FDR CALCULATOR ══ -->
+  <div id="fp-fdr" class="hidden">
+
+    <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-4">
+      <p class="font-bold">Fixed Deposit (FDR) Calculator</p>
+      <p class="text-xs text-neutral/50">Calculate your FDR maturity amount and interest earned</p>
+
+      <div>
+        <label class="label font-semibold text-sm">Bank / Institution</label>
+        <select id="fdr-bank" class="select rounded-2xl bg-base-200 w-full h-12" onchange="updateFDRRate()">
+          <option value="7.5">Sonali Bank (7.50%)</option>
+          <option value="8.0">Janata Bank (8.00%)</option>
+          <option value="8.5">Dutch-Bangla Bank (8.50%)</option>
+          <option value="9.0">BRAC Bank (9.00%)</option>
+          <option value="9.5">Islami Bank (9.50%)</option>
+          <option value="10.0">Al-Arafah Islami Bank (10.00%)</option>
+          <option value="custom">Custom Rate</option>
+        </select>
+      </div>
+
+      <!-- Custom rate input — shown only when "Custom" is selected -->
+      <div id="fdr-custom-wrap" class="hidden">
+        <label class="label font-semibold text-sm">Custom Interest Rate (%)</label>
+        <input id="fdr-custom-rate" type="number" min="0" step="0.01"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="e.g. 8.75" oninput="calcFDR()"/>
+      </div>
+
+      <div>
+        <label class="label font-semibold text-sm">Principal Amount (BDT)</label>
+        <input id="fdr-principal" type="number" min="1"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="e.g. 100000" oninput="calcFDR()"/>
+      </div>
+
+      <div>
+        <label class="label font-semibold text-sm">Term</label>
+        <select id="fdr-term" class="select rounded-2xl bg-base-200 w-full h-12" onchange="calcFDR()">
+          <option value="3">3 Months</option>
+          <option value="6">6 Months</option>
+          <option value="12" selected>1 Year</option>
+          <option value="24">2 Years</option>
+          <option value="36">3 Years</option>
+          <option value="60">5 Years</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label font-semibold text-sm">Interest Type</label>
+        <select id="fdr-compound" class="select rounded-2xl bg-base-200 w-full h-12" onchange="calcFDR()">
+          <option value="simple">Simple Interest</option>
+          <option value="quarterly">Compounded Quarterly</option>
+          <option value="monthly">Compounded Monthly</option>
+        </select>
+      </div>
+    </div></div>
+
+    <!-- FDR Result -->
+    <div id="fdr-result" class="hidden space-y-3">
+      <div class="rounded-2xl p-5 text-white" style="background:linear-gradient(135deg,#7c3aed,#3B25C1)">
+        <p class="text-white/70 text-xs mb-1">Maturity Amount</p>
+        <p class="font-black text-4xl">৳<span id="fdr-maturity">0</span></p>
+        <p class="text-white/60 text-xs mt-2">Interest Earned: ৳<span id="fdr-interest">0</span></p>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="card bg-base-100 rounded-2xl p-3">
+          <p class="text-xs text-gray-400">Principal</p>
+          <p class="font-black text-sm mt-1">৳<span id="fdr-p-display">0</span></p>
+        </div>
+        <div class="card bg-base-100 rounded-2xl p-3">
+          <p class="text-xs text-gray-400">Rate</p>
+          <p class="font-black text-sm mt-1"><span id="fdr-rate-display">0</span>%</p>
+        </div>
+        <div class="card bg-base-100 rounded-2xl p-3">
+          <p class="text-xs text-gray-400">Term</p>
+          <p class="font-black text-sm mt-1"><span id="fdr-term-display">0</span>mo</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end fp-fdr -->
+
+
+  <!-- ══ 5. DPS CALCULATOR ══ -->
+  <div id="fp-dps" class="hidden">
+
+    <div class="card bg-base-100 rounded-2xl mb-4"><div class="card-body gap-4">
+      <p class="font-bold">DPS / Monthly Savings Calculator</p>
+      <p class="text-xs text-neutral/50">Calculate total savings and returns from a monthly DPS scheme</p>
+
+      <div>
+        <label class="label font-semibold text-sm">Bank / Scheme</label>
+        <select id="dps-bank" class="select rounded-2xl bg-base-200 w-full h-12" onchange="updateDPSRate()">
+          <option value="7.0">Sonali Bank DPS (7.00%)</option>
+          <option value="7.5">Agrani Bank DPS (7.50%)</option>
+          <option value="8.0">DBBL DPS (8.00%)</option>
+          <option value="8.5">BRAC Bank DPS (8.50%)</option>
+          <option value="9.0">Islami Bank MDS (9.00%)</option>
+          <option value="9.5">Al-Arafah DPS (9.50%)</option>
+          <option value="custom">Custom Rate</option>
+        </select>
+      </div>
+
+      <div id="dps-custom-wrap" class="hidden">
+        <label class="label font-semibold text-sm">Custom Interest Rate (%)</label>
+        <input id="dps-custom-rate" type="number" min="0" step="0.01"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="e.g. 8.25" oninput="calcDPS()"/>
+      </div>
+
+      <div>
+        <label class="label font-semibold text-sm">Monthly Deposit (BDT)</label>
+        <input id="dps-monthly" type="number" min="1"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="e.g. 5000" oninput="calcDPS()"/>
+      </div>
+
+      <div>
+        <label class="label font-semibold text-sm">Tenure</label>
+        <select id="dps-tenure" class="select rounded-2xl bg-base-200 w-full h-12" onchange="calcDPS()">
+          <option value="12">1 Year (12 months)</option>
+          <option value="24">2 Years (24 months)</option>
+          <option value="36">3 Years (36 months)</option>
+          <option value="60">5 Years (60 months)</option>
+          <option value="120">10 Years (120 months)</option>
+        </select>
+      </div>
+    </div></div>
+
+    <!-- DPS Result -->
+    <div id="dps-result" class="hidden space-y-3">
+      <div class="rounded-2xl p-5 text-white" style="background:linear-gradient(135deg,#0369a1,#0ea5e9)">
+        <p class="text-white/70 text-xs mb-1">Total Maturity Amount</p>
+        <p class="font-black text-4xl">৳<span id="dps-maturity">0</span></p>
+        <p class="text-white/60 text-xs mt-2">Profit Earned: ৳<span id="dps-profit">0</span></p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="card bg-base-100 rounded-2xl p-4 text-center">
+          <p class="text-xs text-gray-400">Total Deposited</p>
+          <p class="font-black text-lg mt-1">৳<span id="dps-total-deposited">0</span></p>
+        </div>
+        <div class="card bg-green-50 rounded-2xl p-4 text-center">
+          <p class="text-xs text-green-600">Total Profit</p>
+          <p class="font-black text-lg text-green-600 mt-1">৳<span id="dps-total-profit">0</span></p>
+        </div>
+      </div>
+      <!-- Year-by-year breakdown -->
+      <div class="card bg-base-100 rounded-2xl p-4">
+        <p class="font-bold text-sm mb-3">Yearly Breakdown</p>
+        <div id="dps-breakdown" class="space-y-2"></div>
+      </div>
+    </div>
+
+  </div><!-- end fp-dps -->
+
+</section>
 
 </main>
 
@@ -1553,7 +1957,7 @@ function toggleTheme(){
 }
 function confirmLogout(){document.getElementById("logout-modal").showModal();}
       // expose new nav sections globally so machine.js ALL_SECTIONS picks them up
-      window.EXTRA_SECTIONS=["split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes","transport"];
+      window.EXTRA_SECTIONS=["split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes","transport","finance","ai"];
 function doLogout(){localStorage.removeItem("payoo_logged_in");window.location.assign("./index.html");}
 function clearTransactionHistory(){
   if(confirm("Clear all transaction history?")){
@@ -1569,10 +1973,697 @@ function clearTransactionHistory(){
 <script src="./script/paybill.js"></script>
 <script src="./script/getbonus.js"></script>
 <script src="./script/cashout.js"></script>
+ <script src="./script/finance.js"></script>
  <script src="./script/transport.js"></script>
  <script src="./script/utilities.js"></script>
  <script src="./script/recharge.js"></script>
  <script src="./script/newfeatures.js"></script>
  <script src="./script/features.js"></script>
+
+<!-- ══════════════════════════════════════════════════════
+     AI ADVISOR — Simulated AI (works fully offline)
+     6 features: Chat · Anomaly · Prediction · Tag · Bills · Reminders
+     All logic runs locally on real localStorage transaction data.
+══════════════════════════════════════════════════════ -->
+
+<!-- AI SECTION HTML (injected into main by nav patch below) -->
+<template id="ai-section-tpl">
+<section id="sec-ai" class="hidden w-11/12 mx-auto py-5 animate-fade-in">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-5">
+    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#7c3aed,#3B25C1)">
+      <i class="fa-solid fa-robot text-xl"></i>
+    </div>
+    <div>
+      <h2 class="font-black text-2xl leading-tight">AI Advisor</h2>
+      <p class="text-xs text-gray-400 mt-0.5">Smart insights from your real transaction data</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 overflow-x-auto pb-2 mb-4" style="scrollbar-width:none;">
+    <button onclick="setAiTab('chat')"    id="aitab-chat"    class="aitab btn btn-sm rounded-xl border-none shrink-0 text-xs bg-violet-600 text-white">💬 Chat</button>
+    <button onclick="setAiTab('anomaly')" id="aitab-anomaly" class="aitab btn btn-sm rounded-xl border-none shrink-0 text-xs bg-base-200">🚨 Unusual</button>
+    <button onclick="setAiTab('predict')" id="aitab-predict" class="aitab btn btn-sm rounded-xl border-none shrink-0 text-xs bg-base-200">📉 Predict</button>
+    <button onclick="setAiTab('tag')"     id="aitab-tag"     class="aitab btn btn-sm rounded-xl border-none shrink-0 text-xs bg-base-200">🏷️ Auto-Tag</button>
+    <button onclick="setAiTab('bills')"   id="aitab-bills"   class="aitab btn btn-sm rounded-xl border-none shrink-0 text-xs bg-base-200">📅 Bills</button>
+    <button onclick="setAiTab('remind')"  id="aitab-remind"  class="aitab btn btn-sm rounded-xl border-none shrink-0 text-xs bg-base-200">⏰ Reminders</button>
+  </div>
+
+  <!-- ── 1. CHAT ── -->
+  <div id="aip-chat">
+    <div class="card bg-base-100 rounded-3xl overflow-hidden mb-3 border border-base-200">
+      <div id="ai-chat-box" class="p-4 space-y-3 overflow-y-auto" style="min-height:260px;max-height:380px;">
+        <div class="flex gap-2 items-start">
+          <div class="w-7 h-7 rounded-full bg-violet-600 flex items-center justify-center shrink-0 mt-0.5 text-white text-xs"><i class="fa-solid fa-robot"></i></div>
+          <div class="bg-base-200 rounded-2xl rounded-tl-sm px-4 py-3 max-w-xs text-sm leading-relaxed">Hi! I'm your Payoo AI Advisor 🤖<br>Ask me anything about your spending!</div>
+        </div>
+      </div>
+      <div class="px-4 pb-3 border-t border-base-200 pt-3">
+        <p class="text-xs text-gray-400 font-semibold mb-2">Quick questions:</p>
+        <div class="flex flex-wrap gap-1.5">
+          <button onclick="aiQ('How much did I spend this month?')" class="btn btn-xs rounded-xl bg-violet-50 text-violet-700 border-none text-xs">This month</button>
+          <button onclick="aiQ('What is my biggest expense?')" class="btn btn-xs rounded-xl bg-violet-50 text-violet-700 border-none text-xs">Biggest expense</button>
+          <button onclick="aiQ('How many transactions do I have?')" class="btn btn-xs rounded-xl bg-violet-50 text-violet-700 border-none text-xs">Total transactions</button>
+          <button onclick="aiQ('Am I spending too much?')" class="btn btn-xs rounded-xl bg-violet-50 text-violet-700 border-none text-xs">Am I overspending?</button>
+          <button onclick="aiQ('What is my current balance?')" class="btn btn-xs rounded-xl bg-violet-50 text-violet-700 border-none text-xs">My balance</button>
+          <button onclick="aiQ('Show my last 5 transactions')" class="btn btn-xs rounded-xl bg-violet-50 text-violet-700 border-none text-xs">Recent 5</button>
+        </div>
+      </div>
+      <div class="flex gap-2 p-3 border-t border-base-200">
+        <input id="ai-chat-inp" type="text" placeholder="Ask about your finances…"
+          class="input input-bordered rounded-2xl flex-1 h-10 text-sm"
+          onkeydown="if(event.key==='Enter')aiSend()"/>
+        <button onclick="aiSend()" class="btn bg-violet-600 text-white border-none rounded-2xl h-10 w-10 p-0 shrink-0">
+          <i class="fa-solid fa-paper-plane text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. UNUSUAL SPEND ── -->
+  <div id="aip-anomaly" class="hidden">
+    <div class="card bg-base-100 rounded-3xl p-4 mb-3">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-2xl bg-red-100 text-red-500 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div><p class="font-bold">Unusual Spend Detector</p><p class="text-xs text-gray-400">Flags transactions outside your normal pattern</p></div>
+      </div>
+      <button onclick="runAnomaly()" class="btn bg-red-500 text-white border-none rounded-2xl w-full h-11 font-semibold">
+        <i class="fa-solid fa-magnifying-glass mr-2"></i>Analyse My Transactions
+      </button>
+    </div>
+    <div id="ai-anomaly-out"></div>
+  </div>
+
+  <!-- ── 3. PREDICTION ── -->
+  <div id="aip-predict" class="hidden">
+    <div class="card bg-base-100 rounded-3xl p-4 mb-3">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-2xl bg-orange-100 text-orange-500 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-chart-line"></i></div>
+        <div><p class="font-bold">Expense Prediction</p><p class="text-xs text-gray-400">Will you run out of money this month?</p></div>
+      </div>
+      <button onclick="runPredict()" class="btn bg-orange-500 text-white border-none rounded-2xl w-full h-11 font-semibold">
+        <i class="fa-solid fa-calendar-day mr-2"></i>Predict My Month
+      </button>
+    </div>
+    <div id="ai-predict-out"></div>
+  </div>
+
+  <!-- ── 4. AUTO TAG ── -->
+  <div id="aip-tag" class="hidden">
+    <div class="card bg-base-100 rounded-3xl p-4 mb-3">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-2xl bg-blue-100 text-blue-500 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-tags"></i></div>
+        <div><p class="font-bold">Auto Category Tagging</p><p class="text-xs text-gray-400">Labels every transaction by spending type</p></div>
+      </div>
+      <button onclick="runTag()" class="btn bg-blue-500 text-white border-none rounded-2xl w-full h-11 font-semibold">
+        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Tag My Transactions
+      </button>
+    </div>
+    <div id="ai-tag-out"></div>
+  </div>
+
+  <!-- ── 5. BILL PREDICTION ── -->
+  <div id="aip-bills" class="hidden">
+    <div class="card bg-base-100 rounded-3xl p-4 mb-3">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-calendar-check"></i></div>
+        <div><p class="font-bold">Bill Due Prediction</p><p class="text-xs text-gray-400">Predicts when your recurring bills are due</p></div>
+      </div>
+      <button onclick="runBills()" class="btn bg-green-600 text-white border-none rounded-2xl w-full h-11 font-semibold">
+        <i class="fa-solid fa-calendar-days mr-2"></i>Predict My Bills
+      </button>
+    </div>
+    <div id="ai-bills-out"></div>
+  </div>
+
+  <!-- ── 6. SMART REMINDERS ── -->
+  <div id="aip-remind" class="hidden">
+    <div class="card bg-base-100 rounded-3xl p-4 mb-3">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-500 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-bell"></i></div>
+        <div><p class="font-bold">Smart Reminders</p><p class="text-xs text-gray-400">Personalised financial reminders based on your data</p></div>
+      </div>
+      <button onclick="runRemind()" class="btn bg-amber-500 text-white border-none rounded-2xl w-full h-11 font-semibold">
+        <i class="fa-solid fa-lightbulb mr-2"></i>Generate My Reminders
+      </button>
+    </div>
+    <div id="ai-remind-out"></div>
+  </div>
+
+</section>
+</template>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// AI ADVISOR — SIMULATED ENGINE
+// Reads real Payoo localStorage data, analyses locally,
+// returns smart human-written responses. 100% offline.
+// ══════════════════════════════════════════════════════════
+
+// ── Inject section HTML into main on first nav ──────────
+(function(){
+  var _orig = window.setNav;
+  if(!_orig) { setTimeout(arguments.callee, 300); return; }
+  window.setNav = function(id) {
+    // Ensure sec-ai exists in DOM
+    if(!document.getElementById('sec-ai')) {
+      var tpl = document.getElementById('ai-section-tpl');
+      if(tpl) document.getElementById('main-content').insertAdjacentHTML('beforeend', tpl.innerHTML);
+    }
+    _orig(id);
+    if(id === 'ai') { setAiTab('chat'); }
+  };
+})();
+
+// ── Data helpers ────────────────────────────────────────
+var AI_CREDIT = ["Money Added","Bonus Credited","Lucky Spin Bonus","Referral Bonus"];
+
+function aiTxs() {
+  try { return JSON.parse(localStorage.getItem('payoo_transactions')||'[]'); } catch(e){return [];}
+}
+function aiBal()  { return Number(localStorage.getItem('payoo_balance')||0); }
+function aiName() { return localStorage.getItem('payoo_profile_name')||'User'; }
+
+function aiCtx() {
+  var txs = aiTxs(), bal = aiBal(), name = aiName();
+  var now = new Date(), ms = new Date(now.getFullYear(), now.getMonth(), 1);
+  var day = now.getDate(), dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  var spend = 0, income = 0;
+  txs.forEach(function(t){
+    if(!t.success||!t.amount) return;
+    var d = new Date(t.date); if(d < ms) return;
+    if(AI_CREDIT.indexOf(t.title) !== -1) income += Number(t.amount);
+    else spend += Number(t.amount);
+  });
+  var dailyAvg = day > 0 ? spend/day : 0;
+  var projectedSpend = dailyAvg * dim;
+  var projectedBal = bal - (projectedSpend - spend);
+  return { txs:txs, bal:bal, name:name, spend:spend, income:income,
+           day:day, dim:dim, dailyAvg:dailyAvg, projectedSpend:projectedSpend,
+           projectedBal:projectedBal, total:txs.length };
+}
+
+function fmtN(n){ return Math.round(n).toLocaleString(); }
+function esc(t){ return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Tab switcher ────────────────────────────────────────
+var AI_PANELS = ['chat','anomaly','predict','tag','bills','remind'];
+function setAiTab(id) {
+  AI_PANELS.forEach(function(p){
+    var panel = document.getElementById('aip-'+p);
+    var btn   = document.getElementById('aitab-'+p);
+    if(panel) panel.classList.toggle('hidden', p !== id);
+    if(btn){
+      btn.classList.toggle('bg-violet-600', p === id);
+      btn.classList.toggle('text-white',    p === id);
+      btn.classList.toggle('bg-base-200',   p !== id);
+    }
+  });
+}
+
+// ── Result card builder ─────────────────────────────────
+function aiCard(icon, title, body, cls) {
+  cls = cls || 'bg-base-100 border-base-200';
+  return '<div class="card border rounded-2xl p-4 mb-3 '+cls+'">'+
+    '<div class="flex gap-3 items-start">'+
+      '<span class="text-2xl shrink-0">'+icon+'</span>'+
+      '<div><p class="font-bold text-sm mb-1">'+esc(title)+'</p>'+
+      '<p class="text-sm leading-relaxed text-gray-600">'+body+'</p></div>'+
+    '</div></div>';
+}
+
+function aiBadge(label, cls) {
+  return '<span class="text-xs font-bold px-2 py-0.5 rounded-full '+cls+'">'+label+'</span>';
+}
+
+// ══════════════════════════════════════════════════════════
+// FEATURE 1 — CHAT ASSISTANT (simulated NLP)
+// ══════════════════════════════════════════════════════════
+function aiQ(q){ document.getElementById('ai-chat-inp').value=q; aiSend(); }
+
+function aiSend() {
+  var inp = document.getElementById('ai-chat-inp');
+  var msg = (inp.value||'').trim();
+  if(!msg) return;
+  inp.value = '';
+  aiAddBubble('user', msg);
+
+  // Simulate brief thinking delay
+  setTimeout(function(){
+    var reply = aiReply(msg.toLowerCase());
+    aiAddBubble('ai', reply);
+  }, 400);
+}
+
+function aiAddBubble(role, text) {
+  var box = document.getElementById('ai-chat-box');
+  if(!box) return;
+  var isUser = role === 'user';
+  var div = document.createElement('div');
+  div.className = 'flex gap-2 items-start' + (isUser ? ' flex-row-reverse' : '');
+  div.innerHTML = (isUser ? '' :
+    '<div class="w-7 h-7 rounded-full bg-violet-600 flex items-center justify-center shrink-0 mt-0.5 text-white text-xs"><i class="fa-solid fa-robot"></i></div>') +
+    '<div class="px-4 py-3 rounded-2xl text-sm leading-relaxed max-w-xs ' +
+    (isUser ? 'bg-violet-600 text-white rounded-tr-sm' : 'bg-base-200 text-gray-800 rounded-tl-sm') +
+    '">' + esc(text) + '</div>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function aiReply(q) {
+  var ctx = aiCtx();
+  if(!ctx.total) return "I don't see any transactions yet! Make some transactions in Payoo first, then come back and ask me anything.";
+
+  var txs = ctx.txs;
+  var debits = txs.filter(function(t){ return t.success && t.amount && AI_CREDIT.indexOf(t.title)===-1; });
+
+  // Balance / general
+  if(/balance|how much.*have|wallet/.test(q))
+    return "Your current Payoo balance is ৳"+fmtN(ctx.bal)+". You've spent ৳"+fmtN(ctx.spend)+" so far this month.";
+
+  // Monthly spend
+  if(/this month|monthly spend|spend.*month|month.*spend/.test(q))
+    return "This month (day "+ctx.day+" of "+ctx.dim+") you've spent ৳"+fmtN(ctx.spend)+" and received ৳"+fmtN(ctx.income)+". Your daily average is ৳"+fmtN(ctx.dailyAvg)+".";
+
+  // Biggest expense
+  if(/biggest|largest|most.*spend|highest/.test(q)) {
+    var top = debits.slice().sort(function(a,b){return Number(b.amount)-Number(a.amount);})[0];
+    if(!top) return "I couldn't find any debit transactions yet.";
+    return "Your biggest single expense is ৳"+fmtN(top.amount)+" for "+top.title+(top.subtitle?" ("+top.subtitle+")":"")+". That's quite a significant transaction!";
+  }
+
+  // Transaction count
+  if(/how many|total.*trans|count/.test(q))
+    return "You have "+ctx.total+" transactions recorded in total. "+debits.length+" are debits and "+(ctx.total-debits.length)+" are credits.";
+
+  // Overspending
+  if(/too much|overspend|over budget|afford/.test(q)) {
+    var pct = ctx.dim > 0 ? (ctx.day/ctx.dim)*100 : 0;
+    var spendPct = ctx.projectedSpend > 0 ? (ctx.spend/ctx.projectedSpend)*100 : 0;
+    if(ctx.projectedBal < 0)
+      return "⚠️ Based on your current rate, you're projected to overspend by ৳"+fmtN(Math.abs(ctx.projectedBal))+" this month. You may want to reduce spending for the remaining "+(ctx.dim-ctx.day)+" days.";
+    if(spendPct > 60)
+      return "You've used "+Math.round(spendPct)+"% of your projected monthly budget already. Keep an eye on spending — you have "+(ctx.dim-ctx.day)+" days left this month.";
+    return "Your spending looks reasonable so far! You've spent ৳"+fmtN(ctx.spend)+" out of a projected ৳"+fmtN(ctx.projectedSpend)+" for this month.";
+  }
+
+  // Run out of money
+  if(/run out|enough|last.*month|survive|afford/.test(q)) {
+    if(ctx.projectedBal < 0)
+      return "🚨 At your current spending rate of ৳"+fmtN(ctx.dailyAvg)+"/day, you may run out of money before month-end. Your projected balance is ৳"+fmtN(ctx.projectedBal)+".";
+    return "You should be okay! Your projected month-end balance is ৳"+fmtN(ctx.projectedBal)+". You're spending about ৳"+fmtN(ctx.dailyAvg)+" per day.";
+  }
+
+  // Saving tips
+  if(/save|saving|tip|advice|suggest/.test(q)) {
+    var tips = [
+      "Try the 50-30-20 rule: 50% needs, 30% wants, 20% savings. Based on your income, aim to save ৳"+fmtN(ctx.income*0.2)+" this month.",
+      "Your daily average spend is ৳"+fmtN(ctx.dailyAvg)+". Cutting just ৳100/day would save ৳"+fmtN(100*(ctx.dim-ctx.day))+" by month-end!",
+      "Set up a savings goal in the Savings section. Even ৳500/week adds up to ৳26,000 a year!",
+      "Review your bill payments — look for subscriptions you no longer use. Small recurring costs add up fast."
+    ];
+    return tips[Math.floor(Math.random()*tips.length)];
+  }
+
+  // Last N transactions
+  if(/last|recent|show.*trans/.test(q)) {
+    var n = 5; var m = q.match(/\d+/); if(m) n = Math.min(parseInt(m[0]),10);
+    var recent = txs.slice(0,n);
+    if(!recent.length) return "No transactions found yet!";
+    var lines = recent.map(function(t,i){
+      return (i+1)+". "+t.title+(t.amount?" ৳"+fmtN(t.amount):"")+(t.date?" · "+t.date.substring(0,10):"");
+    }).join("\n");
+    return "Here are your last "+recent.length+" transactions:\n"+lines;
+  }
+
+  // Send money
+  if(/send|transfer|paid/.test(q)) {
+    var sends = debits.filter(function(t){return /send|transfer/i.test(t.title);});
+    if(!sends.length) return "I don't see any Send Money transactions yet.";
+    var total = sends.reduce(function(s,t){return s+Number(t.amount);},0);
+    return "You've made "+sends.length+" money transfers totalling ৳"+fmtN(total)+". Your most recent was "+sends[0].title+(sends[0].date?" on "+sends[0].date.substring(0,10):"")+".";
+  }
+
+  // Bills
+  if(/bill|utility|electric|water|gas|internet/.test(q)) {
+    var bills = debits.filter(function(t){return /bill|wasa|desco|titas|internet|btcl|utility/i.test(t.title+t.subtitle);});
+    if(!bills.length) return "I don't see any utility bill payments in your history yet.";
+    var btotal = bills.reduce(function(s,t){return s+Number(t.amount);},0);
+    return "I found "+bills.length+" bill payment(s) totalling ৳"+fmtN(btotal)+". Your most recent was ৳"+fmtN(bills[0].amount)+" for "+bills[0].title+".";
+  }
+
+  // Default
+  var greets = ["That's a great question!", "Let me check your data!", "Good thinking!"];
+  return greets[Math.floor(Math.random()*greets.length)]+" Based on your "+ctx.total+" transactions, your balance is ৳"+fmtN(ctx.bal)+" and you've spent ৳"+fmtN(ctx.spend)+" this month. Ask me something more specific!";
+}
+
+// ══════════════════════════════════════════════════════════
+// FEATURE 2 — UNUSUAL SPEND DETECTION
+// ══════════════════════════════════════════════════════════
+function runAnomaly() {
+  var out = document.getElementById('ai-anomaly-out');
+  if(!out) return;
+  var ctx = aiCtx();
+  if(!ctx.total) { out.innerHTML = aiCard('📭','No Data','Make some transactions first!','bg-base-100 border-base-200'); return; }
+
+  var debits = ctx.txs.filter(function(t){ return t.success && t.amount && AI_CREDIT.indexOf(t.title)===-1; });
+  if(debits.length < 2) { out.innerHTML = aiCard('📭','Not Enough Data','Need at least 2 transactions to detect patterns.','bg-base-100 border-base-200'); return; }
+
+  var amounts = debits.map(function(t){return Number(t.amount);});
+  var avg = amounts.reduce(function(a,b){return a+b;},0)/amounts.length;
+  var variance = amounts.reduce(function(s,a){return s+Math.pow(a-avg,2);},0)/amounts.length;
+  var stdDev = Math.sqrt(variance);
+  var threshold = avg + 2*stdDev;
+
+  var flags = [];
+
+  // Flag large amounts
+  debits.forEach(function(t){
+    var amt = Number(t.amount);
+    if(amt > threshold && threshold > 0) {
+      flags.push({ emoji:'💸', title:'Unusually Large Transaction', body:'৳'+fmtN(amt)+' for '+t.title+(t.subtitle?' ('+t.subtitle+')':'')+' is '+Math.round(amt/avg)+'× your average spend of ৳'+fmtN(avg)+'.', severity:'high' });
+    }
+  });
+
+  // Detect duplicate amounts on same day
+  var byDay = {};
+  debits.forEach(function(t){
+    var key = (t.date||'').substring(0,10)+'_'+t.amount;
+    if(!byDay[key]) byDay[key]=[];
+    byDay[key].push(t);
+  });
+  Object.keys(byDay).forEach(function(k){
+    if(byDay[k].length > 1) {
+      var t = byDay[k][0];
+      flags.push({ emoji:'🔁', title:'Duplicate Amount on Same Day', body:byDay[k].length+' transactions of ৳'+fmtN(t.amount)+' on '+(t.date||'').substring(0,10)+'. Could be a duplicate payment.', severity:'medium' });
+    }
+  });
+
+  // Failed transactions
+  var failed = ctx.txs.filter(function(t){return !t.success && t.amount;});
+  if(failed.length >= 2) {
+    flags.push({ emoji:'❌', title:'Multiple Failed Transactions', body:failed.length+' failed transactions detected. This might indicate PIN issues or insufficient balance attempts.', severity:'medium' });
+  }
+
+  // Night-time transactions (if date has time)
+  var nightTx = debits.filter(function(t){
+    var d = new Date(t.date); return !isNaN(d) && (d.getHours() < 5 || d.getHours() > 23);
+  });
+  if(nightTx.length) {
+    flags.push({ emoji:'🌙', title:'Late-Night Transaction', body:nightTx.length+' transaction(s) between midnight and 5am. Just making sure it was you!', severity:'low' });
+  }
+
+  var html = '';
+  if(!flags.length) {
+    html = aiCard('✅','All Clear!','No unusual spending patterns detected. Your transactions look perfectly normal!','bg-green-50 border-green-200');
+  } else {
+    var sev = {'high':'bg-red-50 border-red-200','medium':'bg-orange-50 border-orange-200','low':'bg-yellow-50 border-yellow-200'};
+    var badge = {'high':aiBadge('HIGH','bg-red-100 text-red-700'),'medium':aiBadge('MEDIUM','bg-orange-100 text-orange-700'),'low':aiBadge('LOW','bg-yellow-100 text-yellow-700')};
+    flags.forEach(function(f){
+      html += '<div class="card border rounded-2xl p-4 mb-3 '+sev[f.severity]+'">'+
+        '<div class="flex gap-3 items-start">'+
+        '<span class="text-2xl shrink-0">'+f.emoji+'</span>'+
+        '<div><div class="flex items-center gap-2 mb-1"><p class="font-bold text-sm">'+esc(f.title)+'</p>'+badge[f.severity]+'</div>'+
+        '<p class="text-sm leading-relaxed text-gray-600">'+esc(f.body)+'</p></div>'+
+        '</div></div>';
+    });
+  }
+  out.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════
+// FEATURE 3 — EXPENSE PREDICTION
+// ══════════════════════════════════════════════════════════
+function runPredict() {
+  var out = document.getElementById('ai-predict-out');
+  if(!out) return;
+  var ctx = aiCtx();
+  if(!ctx.total) { out.innerHTML = aiCard('📭','No Data','Make some transactions first!','bg-base-100 border-base-200'); return; }
+
+  var daysLeft = ctx.dim - ctx.day;
+  var projectedTotal = ctx.dailyAvg * ctx.dim;
+  var projectedEnd   = ctx.bal - (ctx.dailyAvg * daysLeft);
+  var verdict = projectedEnd < 0 ? 'danger' : projectedEnd < ctx.bal*0.15 ? 'warning' : 'safe';
+
+  var vMap = {
+    safe:    { emoji:'✅', label:'You\'re On Track', color:'text-green-600', bg:'bg-green-50 border-green-300' },
+    warning: { emoji:'⚠️', label:'Watch Your Spending', color:'text-orange-600', bg:'bg-orange-50 border-orange-300' },
+    danger:  { emoji:'🚨', label:'Running Low!', color:'text-red-600', bg:'bg-red-50 border-red-300' }
+  };
+  var v = vMap[verdict];
+
+  var tip = verdict==='danger'
+    ? 'Try to limit spending to ৳'+fmtN(ctx.bal/Math.max(daysLeft,1))+' per day to avoid running out.'
+    : verdict==='warning'
+    ? 'You have ৳'+fmtN(projectedEnd)+' projected at month-end. Consider pausing non-essential spending.'
+    : 'Great job! Keep your daily spend under ৳'+fmtN(ctx.dailyAvg*1.1)+' to stay comfortable.';
+
+  var html = '<div class="card border-2 rounded-3xl p-5 mb-3 '+v.bg+'">'+
+    '<div class="text-center mb-4">'+
+      '<div class="text-4xl mb-2">'+v.emoji+'</div>'+
+      '<p class="font-black text-xl '+v.color+'">'+v.label+'</p>'+
+      '<p class="text-xs text-gray-400 mt-1">Month-end prediction · Day '+ctx.day+' of '+ctx.dim+'</p>'+
+    '</div>'+
+    '<div class="grid grid-cols-3 gap-2 mb-4">'+
+      '<div class="bg-white/70 rounded-2xl p-3 text-center"><p class="text-xs text-gray-400">Daily Avg</p><p class="font-black text-sm">৳'+fmtN(ctx.dailyAvg)+'</p></div>'+
+      '<div class="bg-white/70 rounded-2xl p-3 text-center"><p class="text-xs text-gray-400">Days Left</p><p class="font-black text-sm">'+daysLeft+'</p></div>'+
+      '<div class="bg-white/70 rounded-2xl p-3 text-center"><p class="text-xs text-gray-400">Est. End Bal</p><p class="font-black text-sm">৳'+fmtN(projectedEnd)+'</p></div>'+
+    '</div>'+
+    '<p class="text-sm text-gray-600 leading-relaxed mb-3">'+
+      'At ৳'+fmtN(ctx.dailyAvg)+'/day you\'ll spend about ৳'+fmtN(projectedTotal)+' this month. '+
+      (projectedEnd >= 0 ? 'Projected end balance: ৳'+fmtN(projectedEnd)+'.' : 'You\'re projected to go ৳'+fmtN(Math.abs(projectedEnd))+' into deficit!')+
+    '</p>'+
+    '<div class="bg-white/70 rounded-2xl p-3">'+
+      '<p class="text-xs font-bold text-gray-400 mb-1">💡 AI TIP</p>'+
+      '<p class="text-sm text-gray-700">'+esc(tip)+'</p>'+
+    '</div>'+
+  '</div>';
+  out.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════
+// FEATURE 4 — AUTO CATEGORY TAGGING
+// ══════════════════════════════════════════════════════════
+var AI_CATS = [
+  { name:'🍔 Food & Dining',     keys:['food','restaurant','kfc','pizza','burger','biryani','cafe','tea','lunch','dinner','meal'] },
+  { name:'🚌 Transport',         keys:['pathao','uber','shohoz','rickshaw','cng','bus','fuel','toll','parking','indrive','transport','travel'] },
+  { name:'💡 Utilities & Bills', keys:['wasa','desco','dpdc','titas','electricity','gas','water','bill','municipal','btcl','internet','cable'] },
+  { name:'📱 Mobile & Recharge', keys:['recharge','grameenphone','robi','banglalink','teletalk','airtel','mobile','top-up'] },
+  { name:'🛍️ Shopping',          keys:['shop','daraz','chaldal','bazar','market','cloth','buy','purchase','store'] },
+  { name:'💊 Health',            keys:['hospital','clinic','doctor','medicine','pharmacy','health','medical'] },
+  { name:'🎬 Entertainment',     keys:['movie','cinema','netflix','youtube','game','fun','entertainment'] },
+  { name:'💸 Money Transfer',    keys:['send money','transfer','payment to','sent to'] },
+  { name:'➕ Income',            keys:['added','bonus','credited','spin','referral','income'] },
+  { name:'🏦 Savings',          keys:['savings','goal','dps','fdr','deposit'] }
+];
+
+function aiCatOf(tx) {
+  var hay = ((tx.title||'')+(tx.subtitle||'')).toLowerCase();
+  for(var i=0;i<AI_CATS.length;i++){
+    var cat = AI_CATS[i];
+    for(var j=0;j<cat.keys.length;j++){
+      if(hay.indexOf(cat.keys[j])!==-1) return cat.name;
+    }
+  }
+  return '📦 Other';
+}
+
+function runTag() {
+  var out = document.getElementById('ai-tag-out');
+  if(!out) return;
+  var ctx = aiCtx();
+  if(!ctx.total) { out.innerHTML = aiCard('📭','No Data','Make some transactions first!','bg-base-100 border-base-200'); return; }
+
+  var tagged = ctx.txs.slice(0,30).map(function(t){ return { tx:t, cat:aiCatOf(t) }; });
+  var groups = {};
+  tagged.forEach(function(item){
+    if(!groups[item.cat]) groups[item.cat]=[];
+    groups[item.cat].push(item.tx);
+  });
+
+  var html = '<div class="card bg-base-100 rounded-3xl p-4 border border-base-200">'+
+    '<p class="font-bold text-sm mb-3">🏷️ '+tagged.length+' transactions tagged across '+Object.keys(groups).length+' categories</p>';
+
+  // Pie-like summary bar
+  var total = tagged.length;
+  html += '<div class="flex gap-1 rounded-full overflow-hidden h-3 mb-4">';
+  var colors = ['#7c3aed','#3b82f6','#f97316','#22c55e','#f59e0b','#ec4899','#14b8a6','#ef4444','#8b5cf6','#6b7280'];
+  Object.keys(groups).forEach(function(cat, i){
+    var pct = (groups[cat].length/total*100).toFixed(1);
+    html += '<div style="width:'+pct+'%;background:'+colors[i%colors.length]+'" title="'+cat+'"></div>';
+  });
+  html += '</div>';
+
+  Object.keys(groups).forEach(function(cat, i){
+    var txList = groups[cat];
+    var catTotal = txList.filter(function(t){return t.amount;}).reduce(function(s,t){return s+Number(t.amount);},0);
+    html += '<div class="bg-base-200 rounded-2xl p-3 mb-2">'+
+      '<div class="flex justify-between items-center mb-2">'+
+        '<p class="font-bold text-xs text-gray-500 uppercase tracking-wide">'+esc(cat)+'</p>'+
+        '<span class="text-xs font-bold text-gray-400">'+txList.length+' tx · ৳'+fmtN(catTotal)+'</span>'+
+      '</div>'+
+      txList.slice(0,5).map(function(t){
+        return '<div class="flex justify-between items-center py-1 border-b border-base-300 last:border-0 text-xs">'+
+          '<span class="text-gray-700 flex-1 mr-2 truncate">'+esc(t.title)+(t.subtitle?' · '+esc(t.subtitle):'')+'</span>'+
+          (t.amount?'<span class="font-semibold text-gray-500 shrink-0">৳'+fmtN(t.amount)+'</span>':'')+
+        '</div>';
+      }).join('')+
+      (txList.length>5?'<p class="text-xs text-gray-400 mt-1 text-center">+' + (txList.length-5) + ' more</p>':'')+
+    '</div>';
+  });
+  html += '</div>';
+  out.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════
+// FEATURE 5 — BILL DUE PREDICTION
+// ══════════════════════════════════════════════════════════
+var BILL_KEYWORDS = [
+  { name:'WASA Water',       keys:['wasa','water bill'],    emoji:'💧' },
+  { name:'Electricity',      keys:['desco','dpdc','electricity','electric bill'], emoji:'⚡' },
+  { name:'Titas Gas',        keys:['titas','gas bill'],     emoji:'🔥' },
+  { name:'Internet Bill',    keys:['internet','broadband'], emoji:'📡' },
+  { name:'Mobile Recharge',  keys:['recharge','top-up'],    emoji:'📱' },
+  { name:'BTCL Landline',    keys:['btcl','landline'],      emoji:'☎️' },
+  { name:'Cable TV',         keys:['cable','tv bill'],      emoji:'📺' },
+  { name:'Send Money',       keys:['send money','transfer'],emoji:'💸' }
+];
+
+function runBills() {
+  var out = document.getElementById('ai-bills-out');
+  if(!out) return;
+  var ctx = aiCtx();
+  if(!ctx.total) { out.innerHTML = aiCard('📭','No Data','Make some transactions first!','bg-base-100 border-base-200'); return; }
+
+  var today = ctx.day;
+  var found = [];
+
+  BILL_KEYWORDS.forEach(function(bk){
+    var matches = ctx.txs.filter(function(t){
+      if(!t.success) return false;
+      var hay = ((t.title||'')+(t.subtitle||'')).toLowerCase();
+      return bk.keys.some(function(k){ return hay.indexOf(k) !== -1; });
+    });
+    if(!matches.length) return;
+
+    // Find typical payment day from history
+    var days = matches.map(function(t){ var d=new Date(t.date); return isNaN(d)?null:d.getDate(); }).filter(Boolean);
+    var avgDay = days.length ? Math.round(days.reduce(function(a,b){return a+b;},0)/days.length) : 15;
+    var avgAmt = matches.reduce(function(s,t){return s+Number(t.amount||0);},0)/matches.length;
+    var daysUntil = avgDay > today ? avgDay - today : (30 - today + avgDay);
+    var urgency = daysUntil <= 3 ? 'soon' : daysUntil <= 7 ? 'upcoming' : 'later';
+
+    found.push({ name:bk.name, emoji:bk.emoji, amount:avgAmt, day:avgDay, daysUntil:daysUntil, urgency:urgency, count:matches.length });
+  });
+
+  if(!found.length) {
+    out.innerHTML = aiCard('📭','No Recurring Bills Found','I couldn\'t detect recurring bills yet. The more you use Payoo, the better I can predict your bills!','bg-blue-50 border-blue-200');
+    return;
+  }
+
+  found.sort(function(a,b){ return a.daysUntil - b.daysUntil; });
+  var urgCls = { soon:'bg-red-50 border-red-300', upcoming:'bg-orange-50 border-orange-200', later:'bg-green-50 border-green-200' };
+  var urgColor = { soon:'text-red-600', upcoming:'text-orange-600', later:'text-green-600' };
+
+  var html = found.map(function(b){
+    return '<div class="card border-2 rounded-2xl p-4 mb-2 '+urgCls[b.urgency]+'">'+
+      '<div class="flex justify-between items-center">'+
+        '<div class="flex items-center gap-3">'+
+          '<span class="text-2xl">'+b.emoji+'</span>'+
+          '<div><p class="font-bold text-sm">'+esc(b.name)+'</p>'+
+          '<p class="text-xs text-gray-400">Usually around '+b.day+esc(ordinal(b.day))+' each month</p></div>'+
+        '</div>'+
+        '<div class="text-right">'+
+          '<p class="font-black text-sm">৳'+fmtN(b.amount)+'</p>'+
+          '<p class="text-xs font-bold '+urgColor[b.urgency]+'">'+
+            (b.daysUntil <= 0 ? 'Due today!' : 'In '+b.daysUntil+' days')+
+          '</p>'+
+        '</div>'+
+      '</div></div>';
+  }).join('');
+  out.innerHTML = html;
+}
+
+function ordinal(n) {
+  var s=['th','st','nd','rd'], v=n%100;
+  return s[(v-20)%10]||s[v]||s[0];
+}
+
+// ══════════════════════════════════════════════════════════
+// FEATURE 6 — SMART REMINDERS
+// ══════════════════════════════════════════════════════════
+function runRemind() {
+  var out = document.getElementById('ai-remind-out');
+  if(!out) return;
+  var ctx = aiCtx();
+
+  var reminders = [];
+
+  // Balance reminder
+  if(ctx.bal < 1000)
+    reminders.push({ emoji:'🚨', title:'Low Balance Alert', msg:'Your balance is ৳'+fmtN(ctx.bal)+'. Consider adding money to avoid failed transactions.', priority:'high' });
+  else if(ctx.bal < 5000)
+    reminders.push({ emoji:'⚠️', title:'Balance Getting Low', msg:'You have ৳'+fmtN(ctx.bal)+' left. You might want to top up soon.', priority:'medium' });
+
+  // Month-end projection
+  var daysLeft = ctx.dim - ctx.day;
+  var projEnd = ctx.bal - ctx.dailyAvg * daysLeft;
+  if(projEnd < 0)
+    reminders.push({ emoji:'📉', title:'Overspend Risk', msg:'At ৳'+fmtN(ctx.dailyAvg)+'/day you may run out by month-end. Try to spend ৳'+fmtN(ctx.bal/Math.max(daysLeft,1))+' or less per day.', priority:'high' });
+
+  // Payday reminder (if early month)
+  if(ctx.day <= 5)
+    reminders.push({ emoji:'💰', title:'New Month, New Budget!', msg:'It\'s the start of the month — great time to set a spending limit in Settings and create savings goals.', priority:'medium' });
+
+  // Mid-month check
+  if(ctx.day >= 14 && ctx.day <= 16)
+    reminders.push({ emoji:'📊', title:'Mid-Month Check-In', msg:'You\'re halfway through the month. You\'ve spent ৳'+fmtN(ctx.spend)+' so far — '+Math.round(ctx.spend/(ctx.spend+projEnd)*100)+'% of your projected total.', priority:'medium' });
+
+  // Savings nudge
+  if(ctx.income > 0 && ctx.spend < ctx.income*0.8)
+    reminders.push({ emoji:'🏦', title:'Savings Opportunity!', msg:'You\'ve spent less than your income this month! Consider moving ৳'+fmtN(ctx.income*0.15)+' to a savings goal.', priority:'low' });
+
+  // Bill reminder based on ctx day
+  if(ctx.day >= 25)
+    reminders.push({ emoji:'📅', title:'Month-End Bills Due', msg:'Month end is approaching. Make sure your utility bills are paid before the '+ctx.dim+esc(ordinal(ctx.dim))+'.', priority:'medium' });
+
+  // No transactions nudge
+  if(!ctx.total)
+    reminders.push({ emoji:'👋', title:'Get Started!', msg:'No transactions yet. Use Payoo to send money, pay bills, or add funds to start tracking your finances.', priority:'low' });
+
+  // Recharge reminder (random nudge)
+  reminders.push({ emoji:'📱', title:'Mobile Recharge', msg:'Don\'t forget to keep your mobile recharged. You can do it instantly from the Recharge section!', priority:'low' });
+
+  // Always show at least a positive reminder
+  if(ctx.total > 10)
+    reminders.push({ emoji:'🌟', title:'Great Financial Activity!', msg:'You have '+ctx.total+' transactions recorded. You\'re actively managing your finances — keep it up!', priority:'low' });
+
+  // Sort high → low
+  var pOrd = {high:0,medium:1,low:2};
+  reminders.sort(function(a,b){ return pOrd[a.priority]-pOrd[b.priority]; });
+  reminders = reminders.slice(0,6);
+
+  var cls = {high:'bg-red-50 border-red-200', medium:'bg-amber-50 border-amber-200', low:'bg-blue-50 border-blue-200'};
+  var pbg = {high:'bg-red-100 text-red-700', medium:'bg-amber-100 text-amber-700', low:'bg-blue-100 text-blue-700'};
+
+  var html = reminders.map(function(r){
+    return '<div class="card border-2 rounded-2xl p-4 mb-2 '+cls[r.priority]+'">'+
+      '<div class="flex gap-3 items-start">'+
+        '<span class="text-2xl shrink-0">'+r.emoji+'</span>'+
+        '<div><div class="flex items-center gap-2 mb-1">'+
+          '<p class="font-bold text-sm">'+esc(r.title)+'</p>'+
+          aiBadge(r.priority.toUpperCase(), pbg[r.priority])+
+        '</div><p class="text-sm leading-relaxed text-gray-600">'+esc(r.msg)+'</p></div>'+
+      '</div></div>';
+  }).join('');
+
+  html += '<button onclick="runRemind()" class="btn bg-amber-500 text-white border-none rounded-2xl w-full h-10 text-sm font-semibold mt-1">'+
+    '<i class="fa-solid fa-arrows-rotate mr-2"></i>Refresh Reminders</button>';
+
+  out.innerHTML = html;
+}
+</script>
 </body>
 </html>

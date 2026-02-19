@@ -6,7 +6,7 @@
 
 // ─── Register new sections with navigation ────────
 (function patchNav(){
-  var extras=["split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes"];
+  var extras=["split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes","ai"];
   var orig=window.setNav;
   if(!orig)return;
   window.setNav=function(id){

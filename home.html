@@ -149,6 +149,10 @@
       <i class="fa-solid fa-gift text-xl text-yellow-500"></i>
       <p class="text-neutral/70 text-[10px] font-medium">Bonus</p>
     </button>
+    <button onclick="setNav('recharge')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-mobile-screen-button text-xl text-green-600"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Recharge</p>
+    </button>
     <button onclick="setNav('contacts')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
       <i class="fa-solid fa-star text-xl text-yellow-400"></i>
       <p class="text-neutral/70 text-[10px] font-medium">Contacts</p>
@@ -161,6 +165,23 @@
     <button onclick="setNav('converter')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
       <i class="fa-solid fa-coins text-xl text-green-500"></i>
       <p class="text-neutral/70 text-[10px] font-medium">Convert</p>
+    </button>
+    <button onclick="setNav('emi')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-calculator text-xl text-blue-500"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">EMI Calc</p>
+    </button>
+    <button onclick="setNav('spin')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1 relative">
+      <i class="fa-solid fa-dharmachakra text-xl text-pink-500"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Lucky Spin</p>
+      <span id="spin-ping" class="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full ping-dot"></span>
+    </button>
+    <button onclick="setNav('notes')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-note-sticky text-xl text-amber-500"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Notes</p>
+    </button>
+    <button onclick="setNav('transport')" class="btn flex-col h-full py-3 btn-primary btn-soft rounded-2xl gap-1">
+      <i class="fa-solid fa-van-shuttle text-xl text-sky-500"></i>
+      <p class="text-neutral/70 text-[10px] font-medium">Travel</p>
     </button>
   </div>
   <!-- Recent transactions preview -->
@@ -229,24 +250,173 @@
   </div></div>
 </section>
 
-<!-- ── Pay Bill ── -->
+<!-- ══════════════════════════════════════════════
+     UTILITY BILLS HUB
+     Shows a category grid first. Tapping any
+     category slides in a payment form for that
+     specific service. Back button returns to grid.
+══════════════════════════════════════════════ -->
 <section id="sec-paybill" class="hidden w-11/12 mx-auto py-5">
-  <h1 class="font-bold text-2xl mb-4">Pay Bill</h1>
-  <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-3">
-    <div><label class="label font-semibold text-sm">Select a Bank</label>
-    <select id="paybill-bank" class="select rounded-2xl bg-base-200 w-full h-12">
-      <option disabled selected>Select Bank</option>
-      <option value="DBBL">DBBL</option><option value="IBBL">IBBL</option><option value="CITY">City Bank</option>
-    </select></div>
-    <div><label class="label font-semibold text-sm">Biller Account Number</label>
-    <input id="paybill-input" type="text" maxlength="11" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit Account Number"/></div>
-    <div><label class="label font-semibold text-sm">Amount (BDT)</label>
-    <input id="paybill-amount" type="number" min="1" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount"/></div>
-    <div><label class="label font-semibold text-sm">4-Digit PIN</label>
-    <input id="paybill-pin" type="password" maxlength="4" class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN"/></div>
-    <button id="paybill-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
-      <i class="fa-solid fa-file-invoice-dollar mr-2"></i>Pay Bill</button>
-  </div></div>
+
+  <!-- ── Page title ── -->
+  <div class="flex items-center gap-3 mb-4">
+    <!-- Back button — only visible when a category form is open -->
+    <button id="util-back-btn" onclick="showUtilityGrid()"
+      class="hidden btn btn-ghost btn-sm rounded-xl px-2">
+      <i class="fa-solid fa-arrow-left text-lg"></i>
+    </button>
+    <div>
+      <h1 class="font-bold text-2xl leading-none" id="util-page-title">Pay Bills</h1>
+      <p class="text-neutral/40 text-xs mt-0.5" id="util-page-sub">Choose a utility to pay</p>
+    </div>
+  </div>
+
+  <!-- ══ CATEGORY GRID (shown by default) ══ -->
+  <div id="util-grid">
+
+    <!-- Row 1 — Utilities -->
+    <p class="text-xs font-bold text-neutral/40 uppercase tracking-widest mb-2">Utilities</p>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+
+      <button onclick="openUtility('wasa')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#e0f2fe">
+          <i class="fa-solid fa-droplet text-xl" style="color:#0284c7"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">WASA<br>Water</p>
+      </button>
+
+      <button onclick="openUtility('electricity')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#fef9c3">
+          <i class="fa-solid fa-bolt text-xl" style="color:#ca8a04"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">DESCO/<br>DPDC</p>
+      </button>
+
+      <button onclick="openUtility('gas')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#fce7f3">
+          <i class="fa-solid fa-fire-flame-curved text-xl" style="color:#db2777"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">Titas<br>Gas</p>
+      </button>
+
+      <button onclick="openUtility('landline')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#f3e8ff">
+          <i class="fa-solid fa-phone text-xl" style="color:#7c3aed"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">BTCL<br>Landline</p>
+      </button>
+
+      <button onclick="openUtility('internet')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#dcfce7">
+          <i class="fa-solid fa-wifi text-xl" style="color:#16a34a"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">Internet<br>Bill</p>
+      </button>
+
+      <button onclick="openUtility('cable')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#ffedd5">
+          <i class="fa-solid fa-tv text-xl" style="color:#ea580c"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">Cable<br>TV</p>
+      </button>
+
+    </div>
+
+    <!-- Row 2 — Government & Tax -->
+    <p class="text-xs font-bold text-neutral/40 uppercase tracking-widest mb-2">Government & Tax</p>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+
+      <button onclick="openUtility('municipal')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#e0f2fe">
+          <i class="fa-solid fa-landmark text-xl" style="color:#0369a1"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">Municipal<br>Tax</p>
+      </button>
+
+      <button onclick="openUtility('passport')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#fef3c7">
+          <i class="fa-solid fa-passport text-xl" style="color:#b45309"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">Passport<br>Fee</p>
+      </button>
+
+    </div>
+
+    <!-- Row 3 — Education & Health -->
+    <p class="text-xs font-bold text-neutral/40 uppercase tracking-widest mb-2">Education & Health</p>
+    <div class="grid grid-cols-3 gap-3">
+
+      <button onclick="openUtility('hospital')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#fee2e2">
+          <i class="fa-solid fa-hospital text-xl" style="color:#dc2626"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">Hospital<br>Bill</p>
+      </button>
+
+      <button onclick="openUtility('school')"
+        class="util-cat-btn flex flex-col items-center gap-2 bg-base-100 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:#dbeafe">
+          <i class="fa-solid fa-graduation-cap text-xl" style="color:#1d4ed8"></i>
+        </div>
+        <p class="text-xs font-semibold text-center leading-tight">School/<br>Uni Fee</p>
+      </button>
+
+    </div>
+
+    <!-- Recent utility payments -->
+    <div class="card bg-base-100 rounded-2xl mt-4">
+      <div class="card-body py-3 px-4">
+        <p class="font-bold text-sm mb-2">Recent Payments</p>
+        <div id="util-recent" class="space-y-2">
+          <p class="text-xs text-gray-400 py-1">No recent utility payments</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end #util-grid -->
+
+
+  <!-- ══ PAYMENT FORM (hidden until a category is picked) ══ -->
+  <div id="util-form" class="hidden">
+    <div class="card bg-base-100 rounded-2xl">
+      <div class="card-body gap-4">
+
+        <!-- Dynamic sub-fields injected by JS (provider select, account/meter number etc.) -->
+        <div id="util-dynamic-fields"></div>
+
+        <!-- Amount -->
+        <div>
+          <label class="label font-semibold text-sm">Amount (BDT)</label>
+          <input id="util-amount" type="number" min="1"
+            class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Enter amount"/>
+        </div>
+
+        <!-- PIN -->
+        <div>
+          <label class="label font-semibold text-sm">4-Digit PIN</label>
+          <input id="util-pin" type="password" maxlength="4"
+            class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN"/>
+        </div>
+
+        <!-- Pay button — label set by JS -->
+        <button id="util-pay-btn" onclick="processUtilityPayment()"
+          class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
+          <i class="fa-solid fa-circle-check mr-2"></i>Pay Now
+        </button>
+
+      </div>
+    </div>
+  </div><!-- end #util-form -->
+
 </section>
 
 <!-- ── Get Bonus ── -->
@@ -258,6 +428,77 @@
     <p class="text-xs text-gray-400 mt-1">Try: <span class="font-mono bg-base-200 px-1 rounded">rashed</span>, <span class="font-mono bg-base-200 px-1 rounded">Fatema</span>, <span class="font-mono bg-base-200 px-1 rounded">Mercy</span></p></div>
     <button id="Bonus-btn" class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-12 text-base font-semibold">
       <i class="fa-solid fa-gift mr-2"></i>Redeem</button>
+  </div></div>
+</section>
+
+<!-- ── Mobile Recharge ── -->
+<section id="sec-recharge" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-1">Mobile Recharge</h1>
+  <p class="text-neutral/40 text-xs mb-4">Top-up any number instantly</p>
+
+  <!-- Operator Tabs -->
+  <div class="flex gap-2 mb-4 overflow-x-auto pb-1">
+    <button onclick="setOperator('grameenphone')" id="op-grameenphone"
+      class="op-tab btn btn-sm rounded-xl bg-[#3B25C1] text-white border-none shrink-0">GP</button>
+    <button onclick="setOperator('robi')" id="op-robi"
+      class="op-tab btn btn-sm rounded-xl bg-base-200 border-none shrink-0">Robi</button>
+    <button onclick="setOperator('banglalink')" id="op-banglalink"
+      class="op-tab btn btn-sm rounded-xl bg-base-200 border-none shrink-0">Banglalink</button>
+    <button onclick="setOperator('teletalk')" id="op-teletalk"
+      class="op-tab btn btn-sm rounded-xl bg-base-200 border-none shrink-0">Teletalk</button>
+    <button onclick="setOperator('airtel')" id="op-airtel"
+      class="op-tab btn btn-sm rounded-xl bg-base-200 border-none shrink-0">Airtel</button>
+  </div>
+
+  <!-- Number Input -->
+  <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3 py-4">
+    <div>
+      <label class="label font-semibold text-sm">Mobile Number</label>
+      <input id="recharge-number" type="text" maxlength="11"
+        class="input rounded-2xl bg-base-200 w-full h-12" placeholder="11-digit number"/>
+    </div>
+
+    <!-- Package Type Toggle -->
+    <div>
+      <label class="label font-semibold text-sm">Package Type</label>
+      <div class="flex gap-2">
+        <button onclick="setRechargeType('prepaid')" id="rtype-prepaid"
+          class="rtype-tab btn btn-sm flex-1 rounded-xl bg-[#3B25C1] text-white border-none">Prepaid</button>
+        <button onclick="setRechargeType('postpaid')" id="rtype-postpaid"
+          class="rtype-tab btn btn-sm flex-1 rounded-xl bg-base-200 border-none">Postpaid</button>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- Quick Packages Grid -->
+  <div id="recharge-packages" class="mb-3"></div>
+
+  <!-- Custom amount + PIN -->
+  <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3 py-4">
+    <div>
+      <label class="label font-semibold text-sm">Amount (BDT)
+        <span class="text-xs text-gray-400 font-normal ml-1">— or pick a package above</span>
+      </label>
+      <input id="recharge-amount" type="number" min="10"
+        class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Min ৳10"/>
+    </div>
+    <div>
+      <label class="label font-semibold text-sm">4-Digit PIN</label>
+      <input id="recharge-pin" type="password" maxlength="4"
+        class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN"/>
+    </div>
+    <button id="recharge-btn"
+      class="btn bg-green-600 hover:bg-green-700 text-white border-none rounded-2xl h-12 text-base font-semibold">
+      <i class="fa-solid fa-mobile-screen-button mr-2"></i>Recharge Now
+    </button>
+  </div></div>
+
+  <!-- Recent Recharges -->
+  <div class="card bg-base-100 rounded-2xl"><div class="card-body py-3 px-4">
+    <p class="font-bold text-sm mb-2">Recent Recharges</p>
+    <div id="recent-recharges" class="space-y-2">
+      <p class="text-xs text-gray-400 py-2">No recent recharges</p>
+    </div>
   </div></div>
 </section>
 
@@ -635,6 +876,622 @@
   </div></div>
 </section>
 
+<!-- ════════════════════════════════════════════
+     EMI CALCULATOR SECTION
+     User enters loan amount, interest rate, months
+     and sees monthly payment + full breakdown
+════════════════════════════════════════════ -->
+<section id="sec-emi" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-1">EMI Calculator</h1>
+  <p class="text-neutral/40 text-xs mb-4">Calculate your monthly loan installment</p>
+
+  <!-- Input Card -->
+  <div class="card bg-base-100 rounded-2xl mb-4">
+    <div class="card-body gap-4">
+
+      <div>
+        <label class="label font-semibold text-sm">Loan Amount (BDT)</label>
+        <input id="emi-amount" type="number" min="1"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="e.g. 100000"
+          oninput="calculateEMI()" />
+      </div>
+
+      <div>
+        <label class="label font-semibold text-sm">Annual Interest Rate (%)</label>
+        <input id="emi-rate" type="number" min="0" step="0.1"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="e.g. 9.5"
+          oninput="calculateEMI()" />
+      </div>
+
+      <div>
+        <label class="label font-semibold text-sm">Loan Term (Months)</label>
+        <input id="emi-months" type="number" min="1" max="360"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="e.g. 24"
+          oninput="calculateEMI()" />
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Result Card — hidden until user types -->
+  <div id="emi-result" class="hidden space-y-3">
+
+    <!-- Monthly EMI highlight -->
+    <div class="rounded-3xl p-5 text-white" style="background: linear-gradient(135deg, #3B25C1, #7c3aed)">
+      <p class="text-white/60 text-xs mb-1">Monthly Payment (EMI)</p>
+      <h2 class="text-3xl font-black">৳<span id="emi-monthly">0</span></h2>
+    </div>
+
+    <!-- Summary grid -->
+    <div class="grid grid-cols-2 gap-3">
+      <div class="card bg-base-100 rounded-2xl p-4">
+        <p class="text-xs text-gray-400">Total Payment</p>
+        <p class="font-black text-lg mt-1">৳<span id="emi-total">0</span></p>
+      </div>
+      <div class="card bg-red-50 rounded-2xl p-4">
+        <p class="text-xs text-red-400">Total Interest</p>
+        <p class="font-black text-lg text-red-500 mt-1">৳<span id="emi-interest">0</span></p>
+      </div>
+    </div>
+
+    <!-- Visual interest bar -->
+    <div class="card bg-base-100 rounded-2xl p-4">
+      <p class="text-sm font-semibold mb-2">Principal vs Interest</p>
+      <div class="flex rounded-full overflow-hidden h-4 mb-2">
+        <div id="emi-bar-principal" class="bg-[#3B25C1] transition-all duration-700" style="width:50%"></div>
+        <div id="emi-bar-interest"  class="bg-red-400 transition-all duration-700"  style="width:50%"></div>
+      </div>
+      <div class="flex justify-between text-xs text-gray-400">
+        <span class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-[#3B25C1] inline-block"></span>Principal
+        </span>
+        <span class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span>Interest
+        </span>
+      </div>
+    </div>
+
+  </div><!-- end #emi-result -->
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     LUCKY SPIN SECTION
+     Spin once per day to win a random bonus.
+     Uses a CSS animated wheel — no canvas needed.
+════════════════════════════════════════════ -->
+<section id="sec-spin" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-1">Lucky Spin</h1>
+  <p class="text-neutral/40 text-xs mb-5">Spin once a day for a chance to win!</p>
+
+  <!-- The wheel is a coloured circle with a pointer -->
+  <div class="flex flex-col items-center mb-6">
+
+    <!-- Pointer arrow sitting above the wheel -->
+    <div class="text-3xl mb-1" style="line-height:1">▼</div>
+
+    <!-- Wheel container — rotation is applied here by JS -->
+    <div id="spin-wheel"
+      class="relative w-64 h-64 rounded-full border-4 border-white shadow-2xl overflow-hidden"
+      style="transition: transform 4s cubic-bezier(0.17,0.67,0.12,1);">
+      <!-- Segments are drawn as conic-gradient background -->
+    </div>
+
+    <!-- Labels overlay (shows prize text around the wheel) -->
+    <div id="spin-labels" class="relative w-64" style="margin-top:-272px; height:272px; pointer-events:none;"></div>
+
+  </div>
+
+  <!-- Spin Button -->
+  <div class="flex flex-col items-center gap-3">
+    <button id="spin-btn" onclick="doSpin()"
+      class="btn bg-pink-500 hover:bg-pink-600 text-white border-none rounded-2xl h-14 px-10 text-lg font-bold shadow-lg">
+      🎰 Spin!
+    </button>
+    <p id="spin-status" class="text-sm text-gray-400 text-center"></p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     NOTES / MEMO SECTION
+     Simple sticky-note style personal memos.
+     Saved to localStorage. Color-coded.
+════════════════════════════════════════════ -->
+<section id="sec-notes" class="hidden w-11/12 mx-auto py-5">
+  <h1 class="font-bold text-2xl mb-1">My Notes</h1>
+  <p class="text-neutral/40 text-xs mb-4">Personal memos &amp; reminders</p>
+
+  <!-- Add note card -->
+  <div class="card bg-base-100 rounded-2xl mb-4">
+    <div class="card-body gap-3">
+
+      <input id="note-title" type="text" maxlength="50"
+        class="input rounded-2xl bg-base-200 w-full h-11"
+        placeholder="Note title (e.g. Pay electricity bill)" />
+
+      <textarea id="note-body" maxlength="300" rows="3"
+        class="textarea rounded-2xl bg-base-200 w-full resize-none"
+        placeholder="Details..."></textarea>
+
+      <!-- Color picker -->
+      <div>
+        <p class="text-xs font-semibold text-gray-400 mb-2">Pick a colour</p>
+        <div class="flex gap-2">
+          <button onclick="setNoteColor('yellow')"  id="nc-yellow"  class="note-color-btn w-7 h-7 rounded-full bg-yellow-300 ring-2 ring-yellow-400"></button>
+          <button onclick="setNoteColor('green')"   id="nc-green"   class="note-color-btn w-7 h-7 rounded-full bg-green-300"></button>
+          <button onclick="setNoteColor('blue')"    id="nc-blue"    class="note-color-btn w-7 h-7 rounded-full bg-blue-300"></button>
+          <button onclick="setNoteColor('pink')"    id="nc-pink"    class="note-color-btn w-7 h-7 rounded-full bg-pink-300"></button>
+          <button onclick="setNoteColor('purple')"  id="nc-purple"  class="note-color-btn w-7 h-7 rounded-full bg-purple-300"></button>
+        </div>
+      </div>
+
+      <button onclick="addNote()"
+        class="btn bg-amber-400 hover:bg-amber-500 text-white border-none rounded-2xl h-11 font-semibold">
+        <i class="fa-solid fa-plus mr-2"></i>Add Note
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Notes list rendered by JS -->
+  <div id="notes-list" class="space-y-3"></div>
+</section>
+
+<!-- ════════════════════════════════════════════════
+     TRANSPORT & TRAVEL HUB
+     8 sub-features accessible via a tab bar inside
+     this single section. No page navigation needed.
+════════════════════════════════════════════════ -->
+<section id="sec-transport" class="hidden w-11/12 mx-auto py-5">
+
+  <h1 class="font-bold text-2xl mb-1">Transport & Travel</h1>
+  <p class="text-neutral/40 text-xs mb-4">Manage all your travel expenses</p>
+
+  <!-- ── Inner tab bar (scrollable) ── -->
+  <div class="flex gap-2 overflow-x-auto pb-2 mb-4">
+    <button onclick="setTransportTab('buspass')"   id="ttab-buspass"   class="ttab-btn btn btn-sm rounded-xl bg-[#3B25C1] text-white border-none shrink-0">🚌 Bus Pass</button>
+    <button onclick="setTransportTab('rideshare')" id="ttab-rideshare" class="ttab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">🛵 Ride Share</button>
+    <button onclick="setTransportTab('fuel')"      id="ttab-fuel"      class="ttab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">⛽ Fuel</button>
+    <button onclick="setTransportTab('travelfund')" id="ttab-travelfund" class="ttab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">✈️ Travel Fund</button>
+    <button onclick="setTransportTab('hotel')"     id="ttab-hotel"     class="ttab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">🏨 Hotel</button>
+    <button onclick="setTransportTab('flight')"    id="ttab-flight"    class="ttab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">🛫 Flights</button>
+    <button onclick="setTransportTab('toll')"      id="ttab-toll"      class="ttab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">🛣️ Toll</button>
+    <button onclick="setTransportTab('parking')"   id="ttab-parking"   class="ttab-btn btn btn-sm rounded-xl bg-base-200 border-none shrink-0">🅿️ Parking</button>
+  </div>
+
+  <!-- ══ 1. BUS PASS TOP-UP ══ -->
+  <div id="tp-buspass">
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3">
+      <p class="font-bold">Bus Pass Top-up</p>
+      <p class="text-xs text-neutral/50">Recharge your prepaid transport card</p>
+      <div>
+        <label class="label font-semibold text-sm">Transport Service</label>
+        <select id="bus-service" class="select rounded-2xl bg-base-200 w-full h-12">
+          <option disabled selected>Select service</option>
+          <option>BRTC Bus</option>
+          <option>Dhaka BRT</option>
+          <option>City Bus (DSCC)</option>
+          <option>Chattogram City Bus</option>
+          <option>Sylhet City Bus</option>
+        </select>
+      </div>
+      <div>
+        <label class="label font-semibold text-sm">Card Number</label>
+        <input id="bus-card" type="text" maxlength="16"
+          class="input rounded-2xl bg-base-200 w-full h-12" placeholder="16-digit transport card number"/>
+      </div>
+      <!-- Quick top-up amounts -->
+      <div>
+        <label class="label font-semibold text-sm">Quick Amounts</label>
+        <div class="grid grid-cols-4 gap-2">
+          <button onclick="setBusAmount(50)"  class="btn btn-sm rounded-xl bg-base-200 border-none font-bold">৳50</button>
+          <button onclick="setBusAmount(100)" class="btn btn-sm rounded-xl bg-base-200 border-none font-bold">৳100</button>
+          <button onclick="setBusAmount(200)" class="btn btn-sm rounded-xl bg-base-200 border-none font-bold">৳200</button>
+          <button onclick="setBusAmount(500)" class="btn btn-sm rounded-xl bg-base-200 border-none font-bold">৳500</button>
+        </div>
+      </div>
+      <div>
+        <label class="label font-semibold text-sm">Amount (BDT)</label>
+        <input id="bus-amount" type="number" min="10"
+          class="input rounded-2xl bg-base-200 w-full h-12" placeholder="Or type custom amount"/>
+      </div>
+      <div>
+        <label class="label font-semibold text-sm">4-Digit PIN</label>
+        <input id="bus-pin" type="password" maxlength="4"
+          class="input rounded-2xl bg-base-200 w-full h-12" placeholder="PIN"/>
+      </div>
+      <button onclick="doBusTopup()"
+        class="btn bg-sky-500 hover:bg-sky-600 text-white border-none rounded-2xl h-12 font-semibold">
+        <i class="fa-solid fa-bus mr-2"></i>Top-up Card
+      </button>
+    </div></div>
+    <!-- History -->
+    <div class="card bg-base-100 rounded-2xl"><div class="card-body py-3 px-4">
+      <p class="font-bold text-sm mb-2">Top-up History</p>
+      <div id="bus-history" class="space-y-2"></div>
+    </div></div>
+  </div>
+
+  <!-- ══ 2. RIDE SHARE BUDGET ══ -->
+  <div id="tp-rideshare" class="hidden">
+    <!-- Monthly summary cards -->
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div class="rounded-2xl p-4" style="background:linear-gradient(135deg,#f97316,#fb923c)">
+        <p class="text-white/70 text-xs">This Month</p>
+        <p class="text-white font-black text-xl mt-1">৳<span id="rs-month-total">0</span></p>
+        <p class="text-white/60 text-xs mt-1"><span id="rs-month-trips">0</span> trips</p>
+      </div>
+      <div class="rounded-2xl p-4 bg-base-100">
+        <p class="text-neutral/50 text-xs">Monthly Budget</p>
+        <p class="font-black text-xl mt-1">৳<span id="rs-budget-display">—</span></p>
+        <button onclick="setRideBudget()" class="text-[10px] text-[#3B25C1] font-semibold mt-1">Set budget</button>
+      </div>
+    </div>
+    <!-- Budget progress bar -->
+    <div id="rs-bar-wrap" class="hidden card bg-base-100 rounded-2xl p-4 mb-3">
+      <div class="flex justify-between text-xs mb-1">
+        <span class="font-semibold">Budget used</span>
+        <span id="rs-bar-label" class="text-gray-400"></span>
+      </div>
+      <div class="w-full bg-base-200 rounded-full h-2">
+        <div id="rs-bar" class="h-2 rounded-full transition-all duration-500 bg-orange-400" style="width:0%"></div>
+      </div>
+    </div>
+    <!-- Log a trip -->
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Log a Trip</p>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">Service</label>
+          <select id="rs-service" class="select rounded-2xl bg-base-200 w-full h-11">
+            <option>Pathao</option>
+            <option>Uber</option>
+            <option>Shohoz</option>
+            <option>InDrive</option>
+            <option>CNG / Auto</option>
+            <option>Rickshaw</option>
+          </select>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">Cost (BDT)</label>
+          <input id="rs-cost" type="number" min="1"
+            class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. 120"/>
+        </div>
+      </div>
+      <div>
+        <label class="label font-semibold text-xs">Route (optional)</label>
+        <input id="rs-route" type="text" maxlength="60"
+          class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. Gulshan → Dhanmondi"/>
+      </div>
+      <button onclick="logRideTrip()"
+        class="btn bg-orange-500 hover:bg-orange-600 text-white border-none rounded-2xl h-11 font-semibold">
+        <i class="fa-solid fa-motorcycle mr-2"></i>Log Trip
+      </button>
+    </div></div>
+    <!-- Trip log list -->
+    <div class="card bg-base-100 rounded-2xl"><div class="card-body py-3 px-4">
+      <div class="flex justify-between items-center mb-2">
+        <p class="font-bold text-sm">Trip Log</p>
+        <button onclick="clearRideLog()" class="text-xs text-red-400 font-semibold">Clear all</button>
+      </div>
+      <div id="rs-log" class="space-y-2"></div>
+    </div></div>
+  </div>
+
+  <!-- ══ 3. FUEL COST CALCULATOR ══ -->
+  <div id="tp-fuel" class="hidden">
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-4">
+      <p class="font-bold">Fuel Cost Calculator</p>
+      <div>
+        <label class="label font-semibold text-sm">Fuel Type</label>
+        <select id="fuel-type" class="select rounded-2xl bg-base-200 w-full h-12" onchange="calcFuel()">
+          <option value="octane">Octane (৳130/L)</option>
+          <option value="petrol">Petrol (৳125/L)</option>
+          <option value="diesel">Diesel (৳109/L)</option>
+          <option value="cng">CNG (৳43/m³)</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="label font-semibold text-sm">Distance (km)</label>
+          <input id="fuel-distance" type="number" min="0" step="0.1"
+            class="input rounded-2xl bg-base-200 w-full h-12"
+            placeholder="e.g. 50" oninput="calcFuel()"/>
+        </div>
+        <div>
+          <label class="label font-semibold text-sm">Mileage (km/L)</label>
+          <input id="fuel-mileage" type="number" min="0" step="0.1"
+            class="input rounded-2xl bg-base-200 w-full h-12"
+            placeholder="e.g. 15" oninput="calcFuel()"/>
+        </div>
+      </div>
+      <!-- Live result -->
+      <div id="fuel-result" class="hidden rounded-2xl p-4" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">
+        <p class="text-white/80 text-xs mb-1">Estimated Fuel Cost</p>
+        <p class="text-white font-black text-3xl">৳<span id="fuel-cost">0</span></p>
+        <div class="flex gap-4 mt-2 text-white/70 text-xs">
+          <span>Fuel needed: <span id="fuel-litres" class="font-bold text-white"></span>L</span>
+          <span>Per km: <span id="fuel-per-km" class="font-bold text-white"></span></span>
+        </div>
+      </div>
+      <!-- Fuel prices reference -->
+      <div class="text-xs text-gray-400 text-center">Prices based on BPC rates (April 2024)</div>
+    </div></div>
+    <!-- Trip cost log -->
+    <div class="card bg-base-100 rounded-2xl"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Save This Trip</p>
+      <input id="fuel-trip-name" type="text" maxlength="40"
+        class="input rounded-2xl bg-base-200 w-full h-11" placeholder="Trip name e.g. Dhaka to Sylhet"/>
+      <button onclick="saveFuelTrip()"
+        class="btn bg-amber-500 hover:bg-amber-600 text-white border-none rounded-2xl h-11 font-semibold">
+        <i class="fa-solid fa-floppy-disk mr-2"></i>Save Trip
+      </button>
+      <div id="fuel-history" class="space-y-2 mt-1"></div>
+    </div></div>
+  </div>
+
+  <!-- ══ 4. TRAVEL FUND ══ -->
+  <div id="tp-travelfund" class="hidden">
+    <!-- Add new travel fund -->
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Create a Travel Fund</p>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">Destination</label>
+          <input id="tf-dest" type="text" maxlength="30"
+            class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. Cox's Bazar"/>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">Target (BDT)</label>
+          <input id="tf-target" type="number" min="1"
+            class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. 20000"/>
+        </div>
+      </div>
+      <div>
+        <label class="label font-semibold text-xs">Trip Date (optional)</label>
+        <input id="tf-date" type="date"
+          class="input rounded-2xl bg-base-200 w-full h-11"/>
+      </div>
+      <button onclick="addTravelFund()"
+        class="btn bg-[#3B25C1] text-white border-none rounded-2xl h-11 font-semibold">
+        <i class="fa-solid fa-plane-departure mr-2"></i>Create Fund
+      </button>
+    </div></div>
+    <!-- Funds list -->
+    <div id="tf-list" class="space-y-3"></div>
+  </div>
+
+  <!-- Deposit to Travel Fund modal -->
+  <dialog id="tf-deposit-modal" class="modal">
+    <div class="modal-box rounded-3xl">
+      <h3 class="font-bold text-lg mb-1">Add to Fund</h3>
+      <p id="tf-modal-name" class="text-neutral/50 text-sm mb-4"></p>
+      <input id="tf-deposit-amount" type="number" min="1"
+        class="input rounded-2xl bg-base-200 w-full h-11 mb-2" placeholder="Amount to add (BDT)"/>
+      <input id="tf-deposit-pin" type="password" maxlength="4"
+        class="input rounded-2xl bg-base-200 w-full h-11" placeholder="4-digit PIN"/>
+      <div class="modal-action gap-3 mt-4">
+        <button onclick="document.getElementById('tf-deposit-modal').close()" class="btn rounded-2xl flex-1">Cancel</button>
+        <button onclick="depositTravelFund()" class="btn bg-[#3B25C1] text-white border-none rounded-2xl flex-1">Add Money</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ══ 5. HOTEL BOOKING BUDGET ══ -->
+  <div id="tp-hotel" class="hidden">
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Set Hotel Budget</p>
+      <div>
+        <label class="label font-semibold text-sm">Hotel / Location</label>
+        <input id="hotel-name" type="text" maxlength="40"
+          class="input rounded-2xl bg-base-200 w-full h-12" placeholder="e.g. Cox's Bazar Seagull Hotel"/>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">Check-in</label>
+          <input id="hotel-checkin" type="date" class="input rounded-2xl bg-base-200 w-full h-11" onchange="calcHotelCost()"/>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">Check-out</label>
+          <input id="hotel-checkout" type="date" class="input rounded-2xl bg-base-200 w-full h-11" onchange="calcHotelCost()"/>
+        </div>
+      </div>
+      <div>
+        <label class="label font-semibold text-sm">Price per Night (BDT)</label>
+        <input id="hotel-rate" type="number" min="1"
+          class="input rounded-2xl bg-base-200 w-full h-12"
+          placeholder="e.g. 3500" oninput="calcHotelCost()"/>
+      </div>
+      <!-- Live cost preview -->
+      <div id="hotel-preview" class="hidden rounded-2xl bg-sky-50 p-4 text-center">
+        <p class="text-sky-600 text-xs font-semibold"><span id="hotel-nights">0</span> nights</p>
+        <p class="text-sky-700 font-black text-2xl mt-1">৳<span id="hotel-total">0</span></p>
+      </div>
+      <button onclick="saveHotelBudget()"
+        class="btn bg-sky-600 hover:bg-sky-700 text-white border-none rounded-2xl h-12 font-semibold">
+        <i class="fa-solid fa-hotel mr-2"></i>Save Budget
+      </button>
+    </div></div>
+    <!-- Saved hotel budgets -->
+    <div class="card bg-base-100 rounded-2xl"><div class="card-body py-3 px-4">
+      <p class="font-bold text-sm mb-2">Saved Hotel Budgets</p>
+      <div id="hotel-list" class="space-y-3"></div>
+    </div></div>
+  </div>
+
+  <!-- ══ 6. FLIGHT PRICE TRACKER ══ -->
+  <div id="tp-flight" class="hidden">
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Track a Flight Route</p>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">From</label>
+          <select id="flight-from" class="select rounded-2xl bg-base-200 w-full h-11">
+            <option>DAC — Dhaka</option>
+            <option>CGP — Chittagong</option>
+            <option>ZYL — Sylhet</option>
+            <option>JSR — Jessore</option>
+            <option>RJH — Rajshahi</option>
+            <option>BZL — Barisal</option>
+          </select>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">To</label>
+          <select id="flight-to" class="select rounded-2xl bg-base-200 w-full h-11">
+            <option>CGP — Chittagong</option>
+            <option>DAC — Dhaka</option>
+            <option>ZYL — Sylhet</option>
+            <option>DXB — Dubai</option>
+            <option>KUL — Kuala Lumpur</option>
+            <option>DOH — Doha</option>
+            <option>RUH — Riyadh</option>
+            <option>BKK — Bangkok</option>
+            <option>SIN — Singapore</option>
+            <option>DEL — Delhi</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">Travel Date</label>
+          <input id="flight-date" type="date" class="input rounded-2xl bg-base-200 w-full h-11"/>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">Budget Alert (BDT)</label>
+          <input id="flight-budget" type="number" min="1"
+            class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. 15000"/>
+        </div>
+      </div>
+      <button onclick="trackFlight()"
+        class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-none rounded-2xl h-11 font-semibold">
+        <i class="fa-solid fa-plane mr-2"></i>Add to Tracker
+      </button>
+    </div></div>
+    <!-- Tracked routes -->
+    <div class="card bg-base-100 rounded-2xl"><div class="card-body py-3 px-4">
+      <p class="font-bold text-sm mb-3">Tracked Routes</p>
+      <div id="flight-list" class="space-y-3"></div>
+    </div></div>
+  </div>
+
+  <!-- ══ 7. TOLL FEE TRACKER ══ -->
+  <div id="tp-toll" class="hidden">
+    <!-- Summary -->
+    <div class="rounded-2xl p-4 mb-3 text-white" style="background:linear-gradient(135deg,#475569,#64748b)">
+      <p class="text-white/70 text-xs">Total Toll Paid (This Month)</p>
+      <p class="font-black text-2xl mt-1">৳<span id="toll-month-total">0</span></p>
+      <p class="text-white/60 text-xs mt-1"><span id="toll-month-count">0</span> toll stops</p>
+    </div>
+    <!-- Log a toll -->
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Log Toll Payment</p>
+      <div>
+        <label class="label font-semibold text-sm">Toll Plaza / Highway</label>
+        <select id="toll-plaza" class="select rounded-2xl bg-base-200 w-full h-12">
+          <option disabled selected>Select toll plaza</option>
+          <option>Meghna Bridge Toll</option>
+          <option>Meghna-Gumti Bridge Toll</option>
+          <option>Bangabandhu Bridge (Jamuna)</option>
+          <option>Buriganga Bridge</option>
+          <option>Dhaka Elevated Expressway</option>
+          <option>Chittagong Port Toll</option>
+          <option>Dhaka–Chittagong Highway</option>
+          <option>Dhaka–Mawa Expressway</option>
+          <option>Other Highway</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">Vehicle Type</label>
+          <select id="toll-vehicle" class="select rounded-2xl bg-base-200 w-full h-11">
+            <option>Car / Jeep</option>
+            <option>Microbus</option>
+            <option>Bus</option>
+            <option>Truck</option>
+            <option>Motorcycle</option>
+          </select>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">Fee (BDT)</label>
+          <input id="toll-amount" type="number" min="1"
+            class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. 100"/>
+        </div>
+      </div>
+      <button onclick="logToll()"
+        class="btn bg-slate-600 hover:bg-slate-700 text-white border-none rounded-2xl h-11 font-semibold">
+        <i class="fa-solid fa-road mr-2"></i>Log Toll
+      </button>
+    </div></div>
+    <!-- Toll log -->
+    <div class="card bg-base-100 rounded-2xl"><div class="card-body py-3 px-4">
+      <div class="flex justify-between items-center mb-2">
+        <p class="font-bold text-sm">Toll History</p>
+        <button onclick="clearTollLog()" class="text-xs text-red-400 font-semibold">Clear</button>
+      </div>
+      <div id="toll-log" class="space-y-2"></div>
+    </div></div>
+  </div>
+
+  <!-- ══ 8. PARKING FEE LOG ══ -->
+  <div id="tp-parking" class="hidden">
+    <!-- Summary -->
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div class="rounded-2xl p-4 bg-violet-600 text-white">
+        <p class="text-white/70 text-xs">This Month</p>
+        <p class="font-black text-xl mt-1">৳<span id="park-month-total">0</span></p>
+      </div>
+      <div class="rounded-2xl p-4 bg-base-100">
+        <p class="text-neutral/50 text-xs">Total Logged</p>
+        <p class="font-black text-xl mt-1">৳<span id="park-all-total">0</span></p>
+      </div>
+    </div>
+    <!-- Log parking -->
+    <div class="card bg-base-100 rounded-2xl mb-3"><div class="card-body gap-3">
+      <p class="font-bold text-sm">Log Parking Fee</p>
+      <div>
+        <label class="label font-semibold text-sm">Location</label>
+        <input id="park-location" type="text" maxlength="50"
+          class="input rounded-2xl bg-base-200 w-full h-12" placeholder="e.g. Bashundhara City Parking"/>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="label font-semibold text-xs">Duration</label>
+          <select id="park-duration" class="select rounded-2xl bg-base-200 w-full h-11">
+            <option>< 1 hour</option>
+            <option>1–2 hours</option>
+            <option>2–4 hours</option>
+            <option>4–8 hours</option>
+            <option>Full day</option>
+            <option>Overnight</option>
+          </select>
+        </div>
+        <div>
+          <label class="label font-semibold text-xs">Fee (BDT)</label>
+          <input id="park-fee" type="number" min="1"
+            class="input rounded-2xl bg-base-200 w-full h-11" placeholder="e.g. 50"/>
+        </div>
+      </div>
+      <button onclick="logParking()"
+        class="btn bg-violet-600 hover:bg-violet-700 text-white border-none rounded-2xl h-11 font-semibold">
+        <i class="fa-solid fa-square-parking mr-2"></i>Log Parking
+      </button>
+    </div></div>
+    <!-- Parking log -->
+    <div class="card bg-base-100 rounded-2xl"><div class="card-body py-3 px-4">
+      <div class="flex justify-between items-center mb-2">
+        <p class="font-bold text-sm">Parking History</p>
+        <button onclick="clearParkingLog()" class="text-xs text-red-400 font-semibold">Clear</button>
+      </div>
+      <div id="park-log" class="space-y-2"></div>
+    </div></div>
+  </div>
+
+</section>
+
 </main>
 
 <!-- ═══ BOTTOM NAV ═══ -->
@@ -696,7 +1553,7 @@ function toggleTheme(){
 }
 function confirmLogout(){document.getElementById("logout-modal").showModal();}
       // expose new nav sections globally so machine.js ALL_SECTIONS picks them up
-      window.EXTRA_SECTIONS=["split","savings","budget","loans","referral","achievements"];
+      window.EXTRA_SECTIONS=["split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes","transport"];
 function doLogout(){localStorage.removeItem("payoo_logged_in");window.location.assign("./index.html");}
 function clearTransactionHistory(){
   if(confirm("Clear all transaction history?")){
@@ -712,6 +1569,10 @@ function clearTransactionHistory(){
 <script src="./script/paybill.js"></script>
 <script src="./script/getbonus.js"></script>
 <script src="./script/cashout.js"></script>
+ <script src="./script/transport.js"></script>
+ <script src="./script/utilities.js"></script>
+ <script src="./script/recharge.js"></script>
+ <script src="./script/newfeatures.js"></script>
  <script src="./script/features.js"></script>
 </body>
 </html>

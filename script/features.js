@@ -6,7 +6,7 @@
 
 // ─── Register new sections with navigation ────────
 (function patchNav(){
-  var extras=["split","savings","budget","loans","referral","achievements"];
+  var extras=["split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes"];
   var orig=window.setNav;
   if(!orig)return;
   window.setNav=function(id){
@@ -18,7 +18,7 @@
     if(id==="budget")   renderBudgets();
     if(id==="loans")    renderLoans();
     if(id==="referral") initReferral();
-    if(id==="achievements") renderAchievements();
+    if(id==="recharge")  initRecharge();
   };
 })();
 
@@ -407,6 +407,8 @@ var ALL_ACHIEVEMENTS=[
   {id:"night_owl",   emoji:"🦉",name:"Night Owl",            desc:"Make a transaction after midnight",     check:function(){return getTransactionHistory().some(function(t){var h=new Date(t.date).getHours();return h>=0&&h<5;});}},
   {id:"streak_3",    emoji:"🔥",name:"On Fire",              desc:"Log in 3 days in a row",               check:function(){return(Number(localStorage.getItem("payoo_login_streak"))||0)>=3;}},
   {id:"splitter",    emoji:"🍕",name:"Fair Share",           desc:"Use the bill splitter",                 check:function(){return !!localStorage.getItem("payoo_used_splitter");}},
+  {id:"recharger",   emoji:"⚡",name:"Power Up",             desc:"Complete your first mobile recharge",   check:function(){return getTransactionHistory().some(function(t){return t.success&&t.title==="Mobile Recharge";});}},
+  {id:"recharge_5",  emoji:"📶",name:"Signal Booster",       desc:"Recharge 5 times",                     check:function(){return getTransactionHistory().filter(function(t){return t.success&&t.title==="Mobile Recharge";}).length>=5;}},
 ];
 
 function getUnlocked(){try{return JSON.parse(localStorage.getItem("payoo_achievements"))||[];}catch{return[];}}

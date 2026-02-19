@@ -16,7 +16,11 @@ function setBalance(value){
     function step(ts){if(!t0)t0=ts;var p=Math.min((ts-t0)/600,1);e.innerText=Math.round(start+(end-start)*p).toLocaleString();if(p<1)requestAnimationFrame(step);}
     requestAnimationFrame(step);
   });
-  localStorage.setItem("payoo_balance",value);
+  // Save to the shared key (read by home.html on load)
+  localStorage.setItem("payoo_balance", value);
+  // Also save to the per-user key so logging back in shows the correct balance
+  var user = localStorage.getItem("payoo_user");
+  if (user) localStorage.setItem("payoo_balance_" + user, value);
 }
 
 var CORRECT_PIN=localStorage.getItem("payoo_pin")||"6427";
@@ -501,7 +505,7 @@ function renderDashboard(){
 })();
 
 // ─── Navigation ───────────────────────────────────
-var ALL_SECTIONS=["home","addMoney","cashout","send","paybill","bonus","qr","scheduled","converter","profile","contacts","notifications","history","dashboard","settings","split","savings","budget","loans","referral","achievements"];
+var ALL_SECTIONS=["home","addMoney","cashout","send","paybill","bonus","qr","scheduled","converter","profile","contacts","notifications","history","dashboard","settings","split","savings","budget","loans","referral","achievements","recharge","emi","spin","notes","transport"];
 var NAV_IDS=["home","send","dashboard","history","settings"];
 function setNav(id){
   ALL_SECTIONS.forEach(function(s){var e=document.getElementById("sec-"+s);if(e)e.classList.add("hidden");});
@@ -517,6 +521,12 @@ function setNav(id){
   if(id==="scheduled")renderSchedules();
   if(id==="qr")generateQR();
   if(id==="home")renderRecentTx();
+  if(id==="recharge")initRecharge();
+  if(id==="emi")     initEMI();
+  if(id==="spin")    initSpin();
+  if(id==="notes")   renderNotes();
+  if(id==="paybill") initUtilities();
+  if(id==="transport") initTransport();
 }
 function showonly(id){var map={"addMoney":"addMoney","cashout":"cashout","TransferMoney":"send","Paybill":"paybill","BonusCupon":"bonus","Transaction":"history","Dashboard":"dashboard"};setNav(map[id]||id);}
 

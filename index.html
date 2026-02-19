@@ -1,131 +1,367 @@
 <!doctype html>
 <html data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
-    <title>Payoo | Login</title>
-    <link rel="shortcut icon" href="./assets/logo.png" type="image/x-icon">
-    <style type="text/tailwindcss">
-      * { font-family: "Outfit", sans-serif; }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <title>Payoo | Login</title>
+  <link rel="shortcut icon" href="./assets/logo.png" type="image/x-icon">
 
-      /* Splash screen */
-      #splash {
-        position: fixed; inset: 0; z-index: 9999;
-        background: #3B25C1;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-        transition: opacity 0.6s ease, transform 0.6s ease;
-      }
-      #splash.hide { opacity: 0; transform: scale(1.05); pointer-events: none; }
-      #splash-logo { animation: splashPop 0.7s cubic-bezier(.34,1.56,.64,1) both; }
-      #splash-ring {
-        width: 80px; height: 80px; border-radius: 50%;
-        border: 4px solid rgba(255,255,255,0.3);
-        border-top-color: white;
-        animation: spin 0.9s linear infinite;
-        margin-top: 32px;
-      }
-      @keyframes splashPop {
-        from { opacity:0; transform: scale(0.5); }
-        to   { opacity:1; transform: scale(1); }
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
+  <style type="text/tailwindcss">
+    * { font-family: "Outfit", sans-serif; }
 
-      /* Login card slide-up */
-      .login-card { animation: slideUp 0.5s 1s cubic-bezier(.34,1.56,.64,1) both; }
-      @keyframes slideUp {
-        from { opacity:0; transform: translateY(40px); }
-        to   { opacity:1; transform: translateY(0); }
-      }
-    </style>
-  </head>
-  <body class="min-h-screen max-w-md bg-base-200 mx-auto">
+    /* ── Splash screen ── */
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #3B25C1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    #splash.hide { opacity: 0; transform: scale(1.05); pointer-events: none; }
+    #splash-logo { animation: splashPop 0.7s cubic-bezier(.34,1.56,.64,1) both; }
+    #splash-ring {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      animation: spin 0.9s linear infinite;
+      margin-top: 32px;
+    }
+    @keyframes splashPop {
+      from { opacity: 0; transform: scale(0.5); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    <!-- Splash Screen -->
-    <div id="splash">
-      <div id="splash-logo" class="text-center">
-        <div class="text-white text-5xl font-black tracking-tight">Pay<span class="opacity-60">oo</span></div>
-        <p class="text-white/60 mt-2 text-sm font-medium">Your trusted mobile wallet</p>
-      </div>
-      <div id="splash-ring"></div>
+    /* ── Card animation ── */
+    .auth-card { animation: slideUp 0.5s 1s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Tab switcher ── */
+    .tab-btn { transition: all 0.25s ease; }
+    .tab-btn.active {
+      background: #3B25C1;
+      color: white;
+      border-radius: 14px;
+    }
+
+    /* ── Password strength bar ── */
+    #strength-bar {
+      height: 4px;
+      border-radius: 99px;
+      transition: width 0.4s ease, background 0.4s ease;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen max-w-md bg-base-200 mx-auto">
+
+  <!-- ── Splash Screen ── -->
+  <div id="splash">
+    <div id="splash-logo" class="text-center">
+      <div class="text-white text-5xl font-black tracking-tight">Pay<span class="opacity-60">oo</span></div>
+      <p class="text-white/60 mt-2 text-sm font-medium">Your trusted mobile wallet</p>
+    </div>
+    <div id="splash-ring"></div>
+  </div>
+
+  <!-- ── Main wrapper ── -->
+  <div class="flex flex-col items-center justify-center min-h-screen px-4 py-8">
+
+    <!-- Logo -->
+    <div class="mb-6 text-center auth-card">
+      <div class="text-4xl font-black text-[#3B25C1] tracking-tight">Pay<span class="text-neutral">oo</span></div>
+      <p class="text-neutral/50 text-sm mt-1">Your trusted mobile wallet</p>
     </div>
 
-    <!-- Login Page -->
-    <div class="flex flex-col items-center justify-center min-h-screen px-4">
-      <div class="mb-8 text-center login-card">
-        <div class="text-4xl font-black text-[#3B25C1] tracking-tight">Pay<span class="text-neutral">oo</span></div>
-        <p class="text-neutral/50 text-sm mt-1">Your trusted mobile wallet</p>
-      </div>
+    <!-- ── Card ── -->
+    <div class="card bg-base-100 w-full max-w-sm rounded-3xl shadow-xl auth-card">
+      <div class="card-body gap-4 px-5 py-6">
 
-      <div class="card bg-base-100 w-full max-w-sm rounded-3xl shadow-xl login-card">
-        <div class="card-body gap-4">
-          <h2 class="text-xl font-bold">Welcome back 👋</h2>
+        <!-- ── Login / Sign Up tab switcher ── -->
+        <div class="flex bg-base-200 rounded-2xl p-1 gap-1">
+          <button id="tab-login"  onclick="showTab('login')"
+            class="tab-btn active flex-1 py-2 text-sm font-bold text-center">
+            Login
+          </button>
+          <button id="tab-signup" onclick="showTab('signup')"
+            class="tab-btn flex-1 py-2 text-sm font-bold text-center text-gray-400">
+            Sign Up
+          </button>
+        </div>
 
-          <div class="space-y-3">
-            <div>
-              <label class="label text-neutral font-semibold text-sm mb-1">Mobile Number</label>
-              <div class="relative">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"><i class="fa-solid fa-mobile-screen-button"></i></span>
-                <input id="number-input" type="text" maxlength="11"
-                  class="input rounded-2xl bg-base-200 w-full pl-10 h-12"
-                  placeholder="Enter your 11-digit number" />
-              </div>
-            </div>
 
-            <div>
-              <label class="label text-neutral font-semibold text-sm mb-1">4-Digit PIN</label>
-              <div class="relative">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"><i class="fa-solid fa-lock"></i></span>
-                <input id="input-pin" type="password" maxlength="4"
-                  class="input rounded-2xl bg-base-200 w-full pl-10 pr-12 h-12"
-                  placeholder="Enter your PIN" />
-                <button type="button" id="toggle-pin"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-              </div>
+        <!-- ══════════════════════════════
+             LOGIN FORM
+        ══════════════════════════════ -->
+        <div id="form-login">
+
+          <h2 class="text-lg font-bold mb-3">Welcome back 👋</h2>
+
+          <!-- Mobile Number -->
+          <div class="mb-3">
+            <label class="label text-neutral font-semibold text-sm mb-1">Mobile Number</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+              </span>
+              <input id="login-number" type="text" maxlength="11"
+                class="input rounded-2xl bg-base-200 w-full pl-10 h-12"
+                placeholder="Enter your 11-digit number" />
             </div>
           </div>
 
-          <button id="login-btn"
-            class="btn h-12 rounded-2xl bg-[#3B25C1] border-none text-white text-base font-semibold w-full hover:bg-[#2f1da0] transition-colors">
+          <!-- PIN -->
+          <div class="mb-4">
+            <label class="label text-neutral font-semibold text-sm mb-1">4-Digit PIN</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                <i class="fa-solid fa-lock"></i>
+              </span>
+              <input id="login-pin" type="password" maxlength="4"
+                class="input rounded-2xl bg-base-200 w-full pl-10 pr-12 h-12"
+                placeholder="Enter your PIN" />
+              <button type="button" onclick="togglePinVisibility('login-pin', this)"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Login Button -->
+          <button id="login-btn" onclick="handleLogin()"
+            class="btn h-12 rounded-2xl bg-[#3B25C1] border-none text-white text-base font-semibold w-full hover:bg-[#2f1da0]">
             <i class="fa-solid fa-right-to-bracket mr-2"></i>Login
           </button>
 
-          <p id="lockout-countdown" class="hidden text-center text-red-500 text-sm font-semibold bg-red-50 rounded-xl py-2 px-3"></p>
+          <!-- Lockout countdown text -->
+          <p id="lockout-countdown" class="hidden text-center text-red-500 text-sm font-semibold bg-red-50 rounded-xl py-2 px-3 mt-3"></p>
 
-          <p class="text-center text-xs text-gray-400">
-            Demo: <span class="font-mono bg-base-200 px-1 rounded">01890642735</span> PIN: <span class="font-mono bg-base-200 px-1 rounded">6427</span>
+          <!-- Demo hint -->
+          <p class="text-center text-xs text-gray-400 mt-3">
+            Demo: <span class="font-mono bg-base-200 px-1 rounded">01890642735</span>
+            PIN: <span class="font-mono bg-base-200 px-1 rounded">6427</span>
           </p>
-        </div>
+
+        </div><!-- end #form-login -->
+
+
+        <!-- ══════════════════════════════
+             SIGN UP FORM
+        ══════════════════════════════ -->
+        <div id="form-signup" class="hidden">
+
+          <h2 class="text-lg font-bold mb-3">Create an account 🚀</h2>
+
+          <!-- Full Name -->
+          <div class="mb-3">
+            <label class="label text-neutral font-semibold text-sm mb-1">Full Name</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                <i class="fa-solid fa-user"></i>
+              </span>
+              <input id="signup-name" type="text" maxlength="40"
+                class="input rounded-2xl bg-base-200 w-full pl-10 h-12"
+                placeholder="Your full name" />
+            </div>
+          </div>
+
+          <!-- Mobile Number -->
+          <div class="mb-3">
+            <label class="label text-neutral font-semibold text-sm mb-1">Mobile Number</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+              </span>
+              <input id="signup-number" type="text" maxlength="11"
+                class="input rounded-2xl bg-base-200 w-full pl-10 h-12"
+                placeholder="11-digit mobile number" />
+            </div>
+          </div>
+
+          <!-- PIN -->
+          <div class="mb-1">
+            <label class="label text-neutral font-semibold text-sm mb-1">Create 4-Digit PIN</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                <i class="fa-solid fa-lock"></i>
+              </span>
+              <input id="signup-pin" type="password" maxlength="4"
+                class="input rounded-2xl bg-base-200 w-full pl-10 pr-12 h-12"
+                placeholder="Choose a 4-digit PIN"
+                oninput="checkPinStrength(this.value)" />
+              <button type="button" onclick="togglePinVisibility('signup-pin', this)"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- PIN strength bar -->
+          <div class="mb-3 px-1">
+            <div class="w-full bg-base-200 rounded-full h-1 mt-1">
+              <div id="strength-bar" style="width:0%; background:#e5e7eb;"></div>
+            </div>
+            <p id="strength-label" class="text-[10px] text-gray-400 mt-1"></p>
+          </div>
+
+          <!-- Confirm PIN -->
+          <div class="mb-4">
+            <label class="label text-neutral font-semibold text-sm mb-1">Confirm PIN</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                <i class="fa-solid fa-lock-open"></i>
+              </span>
+              <input id="signup-confirm-pin" type="password" maxlength="4"
+                class="input rounded-2xl bg-base-200 w-full pl-10 pr-12 h-12"
+                placeholder="Repeat your PIN" />
+              <button type="button" onclick="togglePinVisibility('signup-confirm-pin', this)"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sign Up Button -->
+          <button onclick="handleSignup()"
+            class="btn h-12 rounded-2xl bg-[#3B25C1] border-none text-white text-base font-semibold w-full hover:bg-[#2f1da0]">
+            <i class="fa-solid fa-user-plus mr-2"></i>Create Account
+          </button>
+
+          <p class="text-center text-xs text-gray-400 mt-3">
+            Already have an account?
+            <button onclick="showTab('login')" class="text-[#3B25C1] font-semibold underline">Login</button>
+          </p>
+
+        </div><!-- end #form-signup -->
+
       </div>
-    </div>
+    </div><!-- end card -->
 
-    <script>
-      // Splash screen
-      window.addEventListener("load", function() {
-        setTimeout(function() {
-          document.getElementById("splash").classList.add("hide");
-          setTimeout(function() { document.getElementById("splash").remove(); }, 700);
-        }, 1800);
-      });
+  </div><!-- end main wrapper -->
 
-      // PIN show/hide
-      document.getElementById("toggle-pin").addEventListener("click", function() {
-        var pin = document.getElementById("input-pin");
-        var icon = this.querySelector("i");
-        if (pin.type === "password") { pin.type = "text"; icon.classList.replace("fa-eye","fa-eye-slash"); }
-        else { pin.type = "password"; icon.classList.replace("fa-eye-slash","fa-eye"); }
-      });
 
-      // Apply saved theme
-      var theme = localStorage.getItem("payoo_theme") || "light";
-      document.documentElement.setAttribute("data-theme", theme);
-    </script>
-    <script src="./script/login.js"></script>
-  </body>
+  <script>
+    // ── Apply saved theme on page load ──
+    var theme = localStorage.getItem("payoo_theme") || "light";
+    document.documentElement.setAttribute("data-theme", theme);
+
+    // ── Splash screen dismiss ──
+    window.addEventListener("load", function () {
+      setTimeout(function () {
+        document.getElementById("splash").classList.add("hide");
+        setTimeout(function () { document.getElementById("splash").remove(); }, 700);
+      }, 1800);
+    });
+
+
+    // ════════════════════════════════════════
+    // TAB SWITCHER
+    // Toggles between Login and Sign Up views
+    // ════════════════════════════════════════
+    function showTab(tab) {
+      var isLogin = (tab === "login");
+
+      // Show / hide the two forms
+      document.getElementById("form-login").classList.toggle("hidden",  !isLogin);
+      document.getElementById("form-signup").classList.toggle("hidden",  isLogin);
+
+      // Style the active tab button
+      document.getElementById("tab-login").classList.toggle("active",  isLogin);
+      document.getElementById("tab-signup").classList.toggle("active", !isLogin);
+      document.getElementById("tab-login").classList.toggle("text-gray-400",  !isLogin);
+      document.getElementById("tab-signup").classList.toggle("text-gray-400",  isLogin);
+    }
+
+
+    // ════════════════════════════════════════
+    // TOGGLE PIN VISIBILITY (eye icon)
+    // Works for any input + button pair
+    // ════════════════════════════════════════
+    function togglePinVisibility(inputId, btn) {
+      var input = document.getElementById(inputId);
+      var icon  = btn.querySelector("i");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.replace("fa-eye", "fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.replace("fa-eye-slash", "fa-eye");
+      }
+    }
+
+
+    // ════════════════════════════════════════
+    // PIN STRENGTH INDICATOR
+    // Shows a coloured bar under the PIN field
+    // ════════════════════════════════════════
+    function checkPinStrength(pin) {
+      var bar   = document.getElementById("strength-bar");
+      var label = document.getElementById("strength-label");
+
+      if (pin.length === 0) {
+        bar.style.width = "0%";
+        label.textContent = "";
+        return;
+      }
+
+      // Check for all-same digits (e.g. 1111) or sequential (1234)
+      var allSame   = /^(.)\1+$/.test(pin);
+      var sequential = (pin === "1234" || pin === "0000" || pin === "1111");
+
+      if (pin.length < 4) {
+        bar.style.width = "33%";
+        bar.style.background = "#f59e0b";
+        label.textContent = "Keep typing…";
+      } else if (allSame || sequential) {
+        bar.style.width = "33%";
+        bar.style.background = "#ef4444";
+        label.textContent = "Weak — avoid easy PINs like 1234 or 0000";
+      } else {
+        bar.style.width = "100%";
+        bar.style.background = "#10b981";
+        label.textContent = "Strong PIN ✓";
+      }
+    }
+
+
+    // ════════════════════════════════════════
+    // TOAST HELPER
+    // Shows a small message at the bottom
+    // ════════════════════════════════════════
+    function showAuthToast(message, type) {
+      var colors = { success: "bg-green-500", error: "bg-red-500", warning: "bg-yellow-500" };
+      var icons  = { success: "fa-circle-check", error: "fa-circle-xmark", warning: "fa-triangle-exclamation" };
+
+      // Reuse or create the toast container
+      var container = document.getElementById("auth-toast");
+      if (!container) {
+        container = document.createElement("div");
+        container.id = "auth-toast";
+        container.className = "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-sm";
+        document.body.appendChild(container);
+      }
+
+      container.innerHTML =
+        '<div class="flex items-center gap-3 ' + (colors[type] || "bg-blue-500") + ' text-white px-4 py-3 rounded-2xl shadow-lg">' +
+          '<i class="fa-solid ' + (icons[type] || "fa-info") + '"></i>' +
+          '<span class="text-sm font-semibold">' + message + '</span>' +
+        '</div>';
+
+      // Auto-clear after 3.5 seconds
+      setTimeout(function () { container.innerHTML = ""; }, 3500);
+    }
+
+  </script>
+
+  <!-- login.js handles all login + signup logic -->
+  <script src="./script/login.js"></script>
+
+</body>
 </html>
